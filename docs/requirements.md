@@ -11,6 +11,7 @@
 | *Preconditions* | - The student must be authenticated in UNI |
 | *Postconditions* | - The student is in the curricular units page |
 | *Normal flow* | 1. The student accesses the uni app.<br> 2. The student selects the "Unidades Curriculares" menu option. <br> 3. The list of curricular units is shown. |
+| *Alternative flows and exceptions* | - |
 
 |||
 | --- | --- |
@@ -40,13 +41,14 @@
 | *Preconditions* | - The student is in the curricular unit Moodle page. |
 | *Postconditions* | - The student sees the curricular unit forum. |
 | *Normal flow* | 1. The student selects the Moodle forum option.<br> 2. The student sees the curricular unit's forum.<br> 3. The student selects a forum thread.<br> 4. The student sees the thread messages. |
+| *Alternative flows and exceptions* | - |
 
 |||
 | --- | --- |
 | *Name* | Setup calendar alert based on Moodle's Calendar |
 | *Actor* |  Student | 
 | *Description* | . |
-| *Preconditions* | - The student has the UNI notifications enabled. <br> - The student has events on the calendar. |
-| *Postconditions* | - The customer gets the electronic tickets with a QR code. <br> - The customer is charged of the tickets’ cost, and the seller credited. <br> - Information of tickets sold & seats available for the event is updated. |
-| *Normal flow* | 1. The customer accesses the uni app.<br> 2. The system shows the list of events with tickets on-sale.<br> 3. The customer selects the event and the number of tickets.<br> 4. If wanted, the costumer may Choose Places.<br> 5. The system shows the total price to pay.<br> 6. The system redirects the customer to Electronic Payment.<br> 7. The system delivers the electronic tickets to the customer with a unique identifier and QR code. |
-| *Alternative flows and exceptions* | 1. [Payment failure] If, in step 6 of the normal flow the payment fails, the system gives the user the possibility to cancel or retry. |
+| *Preconditions* | - The student has the UNI notifications enabled. |
+| *Postconditions* | - |
+| *Normal flow* | 1. |
+| *Alternative flows and exceptions* |  |

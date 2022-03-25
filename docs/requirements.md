@@ -47,8 +47,8 @@
 | --- | --- |
 | *Name* | Setup calendar alert based on Moodle's Calendar |
 | *Actor* |  Student | 
-| *Description* | . |
+| *Description* | The student is able to receive notifications, if it is of his interest, of Moodle's Events |
 | *Preconditions* | - The student has the UNI notifications enabled. |
-| *Postconditions* | - |
-| *Normal flow* | 1. |
-| *Alternative flows and exceptions* |  |
+| *Postconditions* | The student receives notifications concerning future Moodle's events |
+| *Normal flow* | 1. The student receives a notification with a defined advance notice which can be stipulated by the user |
+| *Alternative flows and exceptions* | DUVIDA |

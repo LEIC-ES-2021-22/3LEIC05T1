@@ -20,17 +20,17 @@
 | *Actor* |  Student | 
 | *Description* | The student accesses the Moodle's sections of the selected curricular unit. |
 | *Preconditions* | - The student must be authenticated in UNI <br> - The student must be in the curricular units page. |
-| *Postconditions* | - The student sees the curricular units sections including description, links and documents. |
+| *Postconditions* | - The student views the curricular units sections including description, links and documents. |
 | *Normal flow* | 1. The student selects the curricular unit. <br> 2. The student selects the "Moodle" option. <br> 3. The sections of the selected curricular unit are shown. |
 | *Alternative flows and exceptions* | 1. [Moodle page not available] If the curricular unit does not have a Moodle page, in step 2 of the normal flow the "Moodle" option is not available. |
 
 |||
 | --- | --- |
-| *Name* | Download Files |
+| *Name* | Download and Open Files |
 | *Actor* | Student | 
-| *Description* | The student downloads a file available in Moodle |
+| *Description* | The student downloads and opens a file available in Moodle |
 | *Preconditions* | - The student is in a Moodle section. |
-| *Postconditions* | - The selected file is stored locally for later use without the need to download. |
+| *Postconditions* | - The selected file is stored locally for later use without the need to download again. <br> - The selected file is opened. |
 | *Normal flow* | 1. The student clicks on the file. <br> 2. The system prompts the user to choose how to open the file. |
 | *Alternative flows and exceptions* | 1. [No Internet Connection] If there is no Internet connection nor the file is already stored locally, in step 2 of the normal flow an alert message is shown. |
 
@@ -40,16 +40,16 @@
 | *Actor* |  Student | 
 | *Description* | The student accesses the selected curricular unit forum. |
 | *Preconditions* | - The student is in the curricular unit Moodle page. |
-| *Postconditions* | - The student sees the curricular unit forum. |
-| *Normal flow* | 1. The student selects the Moodle forum option.<br> 2. The student sees the curricular unit's forum.<br> 3. The student selects a forum thread.<br> 4. The student sees the thread messages. |
-| *Alternative flows and exceptions* | 1. [No Internet Connection] If no Internet connection is available, the option in step 1 of the normal flow isn't available. |
+| *Postconditions* | - The student views the curricular unit forum. |
+| *Normal flow* | 1. The student selects the Moodle forum option.<br> 2. The student views the curricular unit's forum.<br> 3. The student selects a forum thread.<br> 4. The student sees the thread messages. |
+| *Alternative flows and exceptions* | 1. [No Internet Connection] If no Internet connection is available nor the forum is already stored locally,in step 2 of the normal flow the forum is not accessible. |
 
 |||
 | --- | --- |
 | *Name* | Setup calendar alert based on Moodle's Calendar |
 | *Actor* |  Student | 
-| *Description* | The student is able to receive notifications, if it is of his interest, of Moodle's Events |
-| *Preconditions* | - The student has the UNI notifications enabled. |
-| *Postconditions* | The student receives notifications concerning future Moodle's events |
-| *Normal flow* | 1. The student receives a notification with a defined advance notice which can be stipulated by the user |
-| *Alternative flows and exceptions* | DUVIDA |
+| *Description* | The student is able to receive notifications, if it is of his interest, of Moodle's Events of a specific curricular unit. |
+| *Preconditions* | - The student is registered in the curricular unit. |
+| *Postconditions* | - The student receives notifications concerning future Moodle's events |
+| *Normal flow* | 1. The student accesses the list of curricular units.<br> 2. The student selects the curricular unit. <br> 3. The student selects the "Moodle" option. <br> 4. The student selects the options' button <br> 5. The student **enables/disables** the notifications. |
+| *Alternative flows and exceptions* | - |

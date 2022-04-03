@@ -71,3 +71,20 @@ Note: When requested, the operating system (OS) opens files using apps external 
 | *Preconditions* | - The student is registered in the curricular unit and it is in the curricular unit's Moodle page. |
 | *Postconditions* | - When activated The student receives notifications concerning future Moodle's events;  |
 | *Normal flow* | 1. The student **enables/disables** the notifications, using the bell icon. |
+
+### Domain model diagram
+
+![](./Diagrams/Domain_model.drawio.png)
+
+| Class | Description |
+| --- |---|
+| Curricular unit | Each curricular unit class aggregates Moodle sections if available to it. |
+| Section | Each Moodle section has a title and may have a desription and related activities. |
+| Activity | Each activity has a title and may have a desctiption |
+| File |  |
+| Page | |
+| Event | For each event only time information is stored |
+| Forum | Aggregates various discussions |
+| Discussion | Stores the introdutory text of the discussion, the date of creation and the edited flag.  |
+| Comment | Contains the comment flag, the date of the post and the edited flag. |
+| User | It is a student or teacher and it is identified by its name and mecanographic number. |

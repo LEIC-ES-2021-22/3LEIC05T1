@@ -1,6 +1,10 @@
 
 ## Architecture and Design
 
+The Uni Moodle Module (UMM) is a module that allows users of the Uni App to access their Moodle pages. 
+
+To do so makes use of Sigarra to list the curricular units and checks if a Moodle page is avaialable. Then accesses Moodle and allow users to view the sections in the available curricular units and caching them in the device to later offline visualization. It also allows to download and cache of files and to follow external links integrates in the various sections.
+
 ### Logical architecture
 
 This section documents the high-level logical structure of the code (Logical View).
@@ -15,6 +19,22 @@ This section documents the high-level logical structure of the code (Logical Vie
 
 ### Physical architecture
 
-![DeploymentView]()
+![DeploymentView](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Physical_Architecture.drawio.png)
+
+- Sigarra: It is queried for the curricular units the student is currently attending.
+
+- Moodle: Used to get sections and file
+
+- User client machine: Hosts the Uni app
+
+- Uni app: Allows students to access an assortment of information related with classes and student's life.
+
+- Uni Moodle Module (UMM): Allows users to access Moodle pages from the Uni app
 
 ### Vertical prototype
+
+
+![Tab on the right with the Moodle option]()
+![Moodle page with a card representing a curricular unit]()
+
+Based on the already existing code of the Uni app, we added an option to access the Uni Moodle Module from the *drawer* menu and a page with a *card* representing a curricular unit.

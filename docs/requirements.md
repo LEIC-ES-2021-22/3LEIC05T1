@@ -79,12 +79,12 @@ Note: When requested, the operating system (OS) opens files using apps external 
 | Class | Description |
 | --- |---|
 | Curricular unit | Each curricular unit class aggregates Moodle sections if available to it. |
-| Section | Each Moodle section has a title and may have a desription and related activities. |
-| Activity | Each activity has a title and may have a desctiption |
-| File |  |
-| Page | |
-| Event | For each event only time information is stored |
-| Forum | Aggregates various discussions |
+| Section | Each Moodle Section has a title and may have a desription and related activities. |
+| Activity | Each activity has a title and may have a desctiption. |
+| File | The File Class stores the path for each downloaded file. |
+| Page | The Page Class store the link for each page. |
+| Event | For each event only time information is stored. |
+| Forum | Aggregates various discussions. |
 | Discussion | Stores the introdutory text of the discussion, the date of creation and the edited flag.  |
 | Comment | Contains the comment flag, the date of the post and the edited flag. |
 | User | It is a student or teacher and it is identified by its name and mecanographic number. |

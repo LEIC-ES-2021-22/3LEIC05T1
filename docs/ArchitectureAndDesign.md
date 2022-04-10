@@ -18,8 +18,9 @@ This section documents the high-level logical structure of the code (Logical Vie
 * **Moodle UP:** external module used to obtain information about the curricular units' Moodle page and its contents (sections and respective activities such as files, links, forum and events).
 
 ### Physical architecture
-
+<div align=center>
 ![DeploymentView](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Physical_architecture.drawio.png)
+</div>
 
 - Sigarra: It is queried for the curricular units the student is currently attending.
 
@@ -33,8 +34,9 @@ This section documents the high-level logical structure of the code (Logical Vie
 
 ### Vertical prototype
 
-
+<div align=center>
 ![Tab on the right with the Moodle option](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/images/vertical_prototype/vertical_prototype_0.png)
 ![Moodle page with a card representing a curricular unit](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/images/vertical_prototype/vertical_prototype_1.png)
+</div>
 
 Based on the already existing code of the Uni app, we added an option to access the Uni Moodle Module from the *drawer* menu and a page with a *card* representing a curricular unit.

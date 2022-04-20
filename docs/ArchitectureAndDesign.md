@@ -28,9 +28,7 @@ This section documents the high-level logical structure of the code (Logical Vie
 
 - User client machine: Hosts the Uni app
 
-- Uni app: Allows students to access an assortment of information related with classes and student's life.
-
-- Uni Moodle Module (UMM): Allows users to access Moodle pages from the Uni app
+- Uni app with Moodle module: Allows students to access an assortment of information related with classes and student's life. The Moodle module allows users to access Moodle pages right from the Uni app.
 
 ### Vertical prototype
 

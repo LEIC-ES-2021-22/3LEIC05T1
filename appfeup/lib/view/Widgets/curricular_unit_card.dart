@@ -23,10 +23,12 @@ class CurricularUnitCard extends GenericCard {
       : super.fromEditingInformation(key, false, onDelete);
 
   @override
+  //TODO - title vindo do do constructor
   String getTitle() => 'Engenharia de software';
 
   @override
   onClick(BuildContext context) =>
+      //TODO - criar uma nova página
       print('ola');
 
 
@@ -37,6 +39,7 @@ class CurricularUnitCard extends GenericCard {
         return store.state.content['examsStatus'];
       },
       builder: (context, examsInfo) => Container(
+        //TODO - Icon a identificar que tem moodle
       ),
     );
   }

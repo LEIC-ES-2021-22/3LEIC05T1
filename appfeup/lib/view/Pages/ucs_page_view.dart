@@ -6,7 +6,6 @@ import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/view/Pages/secondary_page_view.dart';
 import 'package:uni/view/Widgets/curricular_unit_card.dart';
 
-//TODO - MUDAR ISTO TUDO
 
 /// Manages the 'schedule' sections of the app
 class MoodlePageView extends StatefulWidget {

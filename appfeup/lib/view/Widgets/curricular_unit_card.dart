@@ -11,7 +11,7 @@ class CurricularUnitCard extends GenericCard {
   CurricularUnitCard(this.courseUnit, {Key key}) : super(key: key); 
 
   @override
-  String getTitle() => this.courseUnit.name;
+  String getTitle() => courseUnit.name;
 
   @override
   onClick(BuildContext context) =>
@@ -30,9 +30,10 @@ class CurricularUnitCard extends GenericCard {
       converter: (store) {
         return store.state.content['examsStatus'];
       },
-      builder: (context, examsInfo) =>
-          Image.asset(
-            'assets/images/moodle_icon.png')
+      builder: (context, examsInfo) => 
+              Image.asset(
+                'assets/images/moodle_icon.png')
+          
        //Text('has moodle')
        
        

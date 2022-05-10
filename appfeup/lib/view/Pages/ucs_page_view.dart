@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:uni/model/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -5,6 +6,7 @@ import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/view/Pages/secondary_page_view.dart';
 import 'package:uni/view/Widgets/curricular_unit_card.dart';
+import 'package:uni/utils/constants.dart' as Constants;
 
 
 /// Manages the 'schedule' sections of the app
@@ -48,12 +50,24 @@ class UcsList extends StatelessWidget {
     return ListView(
       children: <Widget>[
         Container(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 5),
+          child: 
+         
+            Text(
+              Constants.ucs, 
+              style:
+                Theme.of(context).textTheme.headline6.apply(fontSizeFactor: 1.3),)
+          
+          ),
+        Container(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             //TODO - Por a retornar uma lista de cards
             children: createAllUnitCards(),
           ),
-        )
+        ),
+        
+      
       ],
     );
   }

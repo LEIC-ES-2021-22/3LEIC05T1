@@ -1,55 +1,52 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/time_utilities.dart';
+import 'package:uni/model/entities/section.dart';
 
-abstract class GenericCard extends StatefulWidget {
-  GenericCard({Key key})
-      : editingMode = false,
-        onDelete = null,
-        super(key: key);
-
-  GenericCard.fromEditingInformation(
-      Key key, bool editingMode, Function onDelete)
-      : editingMode = editingMode,
-        onDelete = onDelete,
-        super(key: key);
-
-  final bool editingMode;
-  final Function onDelete;
+class SectionCard extends StatefulWidget{
+  
+  final Section section;
+  SectionCard(this.section, {Key key}) : super(key: key); 
 
   @override
   State<StatefulWidget> createState() {
-    return GenericCardState();
+    return SectionCardState();
   }
 
-  Widget buildCardContent(BuildContext context);
-  String getTitle();
-  onClick(BuildContext context);
+  Widget buildCardContent(BuildContext context) {
+    return Wrap(
+      children: <Widget>[
+        Divider(
+              color: Colors.grey.shade500
+          ),
+        Row(
+          children: <Widget>[
+            Flexible( 
+              child: Text(this.section.description,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade, 
+            ))]),
 
-  Text getInfoText(String text, BuildContext context) {
-    return Text(text == null ? 'N/A' : text,
-        textAlign: TextAlign.end, style: Theme.of(context).textTheme.headline3);
+        Row(
+          children: <Widget>[
+            Text(this.section.activity)]),
+      ]
+    ); 
+    
   }
 
-  showLastRefreshedTime(time, context) {
-    if (time == null) return Text('N/A');
-    final t = DateTime.parse(time);
-    return Container(
-        child: Text('última atualização às ' + t.toTimeHourMinString(),
-            style: Theme.of(context).textTheme.caption),
-        alignment: Alignment.center);
-  }
+  String getTitle() => this.section.name;
+
 }
 
-class GenericCardState extends State<GenericCard> {
+class SectionCardState extends State<SectionCard> {
   final double borderRadius = 10.0;
   final double padding = 12.0;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () => widget.onClick(context),
-        child: Card(
+    return Card(
             margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             color: Color.fromARGB(0, 0, 0, 0),
             elevation: 0,
@@ -120,27 +117,6 @@ class GenericCardState extends State<GenericCard> {
                   ),
                 ),
               ),
-            )));
-  }
-
-  Widget getDeleteIcon(context) {
-    return (widget.editingMode != null && widget.editingMode)
-        ? IconButton(
-            iconSize: 22,
-            icon: Icon(Icons.delete),
-            tooltip: 'Remover',
-            onPressed: widget.onDelete,
-          )
-        : null;
-  }
-
-  Widget getMoveIcon(context) {
-    return (widget.editingMode != null && widget.editingMode)
-        ? Icon(
-          Icons.drag_handle_rounded,
-          color: Colors.grey.shade500,
-          size: 22.0
-        )
-        : null; 
+            ));
   }
 }

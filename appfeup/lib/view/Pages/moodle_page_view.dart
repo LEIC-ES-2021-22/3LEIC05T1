@@ -36,6 +36,8 @@ class UcsList extends StatelessWidget {
   final List<CourseUnit> ucs;
 
   UcsList({Key key, @required this.ucs}) : super(key: key);
+
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -44,7 +46,7 @@ class UcsList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             //TODO - Por a retornar uma lista de cards
-            children: [CurricularUnitCard()],
+            children: [],
           ),
         )
       ],

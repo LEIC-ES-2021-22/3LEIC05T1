@@ -24,7 +24,7 @@ import 'package:uni/view/theme.dart';
 
 import 'controller/on_start_up.dart';
 import 'model/schedule_page_model.dart';
-import 'view/Pages/moodle_page_view.dart';
+import 'view/Pages/ucs_page_view.dart';
 
 /// Stores the state of the app
 final Store<AppState> state = Store<AppState>(appReducers,
@@ -105,7 +105,7 @@ class MyAppState extends State<MyApp> {
                     maintainState: false);
               case '/' + Constants.moodle:
                 return PageTransition.makePageTransition(
-                    page: MoodlePageView(),
+                    page: UcsPageView(),
                     settings: settings,
                     maintainState: false);
               case '/' + Constants.navLogOut:

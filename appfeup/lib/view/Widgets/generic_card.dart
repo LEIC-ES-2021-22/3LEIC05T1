@@ -94,7 +94,7 @@ class GenericCardState extends State<GenericCard> {
                             padding: EdgeInsets.symmetric(horizontal: 15),
                             margin: EdgeInsets.only(top: 15, bottom: 10),
                           )),
-                          Container(
+                          /*Container(
                             child: this.getMoveIcon(context),
                             alignment: Alignment.center,
                             margin: EdgeInsets.only(top: 8),
@@ -104,7 +104,7 @@ class GenericCardState extends State<GenericCard> {
                               child: this.getDeleteIcon(context),
                               alignment: Alignment.centerRight,
                               height: 32,
-                            )),
+                            )),*/
                         ].where((e) => e != null).toList(),
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       ),

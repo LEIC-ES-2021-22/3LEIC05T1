@@ -8,13 +8,13 @@ import 'package:uni/view/Widgets/curricular_unit_card.dart';
 
 
 /// Manages the 'schedule' sections of the app
-class MoodlePageView extends StatefulWidget {
+class UcsPageView extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => MoodlePageViewState();
+  State<StatefulWidget> createState() => UcsPageViewState();
 }
 
 /// Tracks the state of `ExamsLists`.
-class MoodlePageViewState extends SecondaryPageViewState {
+class UcsPageViewState extends SecondaryPageViewState {
   final double borderRadius = 10.0;
 
   @override
@@ -35,6 +35,14 @@ class UcsList extends StatelessWidget {
   final List<CourseUnit> ucs;
 
   UcsList({Key key, @required this.ucs}) : super(key: key);
+  
+  List<CurricularUnitCard> createAllUnitCards(){
+      final List<CurricularUnitCard> curricularUnitCards = [];
+      for (var courseUnit in ucs) {
+          curricularUnitCards.add(CurricularUnitCard(courseUnit));
+      }
+      return curricularUnitCards;
+  }
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -43,7 +51,7 @@ class UcsList extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             //TODO - Por a retornar uma lista de cards
-            children: [CurricularUnitCard()],
+            children: createAllUnitCards(),
           ),
         )
       ],

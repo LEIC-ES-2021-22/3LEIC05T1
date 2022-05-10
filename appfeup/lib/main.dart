@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'package:redux/redux.dart';
 import 'package:uni/controller/middleware.dart';
 import 'package:uni/model/app_state.dart';
+import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/redux/actions.dart';
 import 'package:uni/redux/reducers.dart';
 import 'package:uni/utils/constants.dart' as Constants;
@@ -17,7 +18,9 @@ import 'package:uni/view/Pages/bus_stop_next_arrivals_page.dart';
 import 'package:uni/view/Pages/exams_page_view.dart';
 import 'package:uni/view/Pages/home_page_view.dart';
 import 'package:uni/view/Pages/logout_route.dart';
+import 'package:uni/view/Pages/moodle_page_view.dart';
 import 'package:uni/view/Pages/splash_page_view.dart';
+import 'package:uni/view/Widgets/curricular_unit_card.dart';
 import 'package:uni/view/Widgets/page_transition.dart';
 import 'package:uni/view/navigation_service.dart';
 import 'package:uni/view/theme.dart';
@@ -105,6 +108,7 @@ class MyAppState extends State<MyApp> {
                     maintainState: false);
               case '/' + Constants.moodle:
                 return PageTransition.makePageTransition(
+                    //page: UcsPageView(),
                     page: UcsPageView(),
                     settings: settings,
                     maintainState: false);

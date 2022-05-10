@@ -18,7 +18,7 @@ class CurricularUnitCard extends GenericCard {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MoodlePageView()
+          builder: (context) => MoodlePageView(this.courseUnit)
         )
       );
 

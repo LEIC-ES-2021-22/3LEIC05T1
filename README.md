@@ -26,7 +26,7 @@ Please contact us!
 
 Thank you!
 
-Bruno Gomes
-José Costa
-Margarida Ferreira
+Bruno Gomes\
+José Costa\
+Margarida Ferreira\
 Sara Marinha

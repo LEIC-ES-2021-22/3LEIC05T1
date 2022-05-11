@@ -29,4 +29,4 @@ Thank you!
 Bruno Gomes\
 José Costa\
 Margarida Ferreira\
-Sara Marinha\
+Sara Marinha

@@ -1,31 +1,32 @@
-# 3LEIC05T1
+Uni Moodle Module Development Report
 
-## Members
-|                    |           |
-|--------------------|-----------|
-| Bruno Gomes        | 201906401 |
-| José Costa         | 201907216 |
-| Margarida Ferreira | 201905046 |
-| Sara Marinha       | 201906805 |
+Welcome to the documentation pages of the Uni Moodle Module!
 
+You can find here detailed about the product (or mini-app or module), from a high-level vision to low-level implementation decisions, a kind of Software Development Report, organized by discipline (as of RUP):
 
-# Product Name
+* Business modeling 
+  * [Product Vision](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/ProductVision.md)
+  * [Elevator Pitch]
+* [Requirements](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/requirements.md)
+  * [Use Case Model](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Use_case_model.drawio.png)
+  * [User stories](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/requirements.md#User-stories)
+  * [Domain model](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Domain_model.drawio.png)
+* [Architecture and Design](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/ArchitectureAndDesign.md)
+  * [Logical architecture](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Package_Diagram.drawio.png)
+  * [Physical architecture](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Physical_architecture.drawio.png)
+  * [Vertical prototype](https://github.com/LEIC-ES-2021-22/3LEIC05T1/tree/main/docs/images/vertical_prototype)
+* [Implementation]
+* [Test]
+* [Configuration and change management]
+* [Project management]
 
-Uni Moodle Moodule - UMM
+So far, contributions are exclusively made by the initial team, but we hope to open them to the community, in all areas and topics: requirements, technologies, development, experimentation, testing, etc.
 
-## Vision Stament
+Please contact us!
 
-For FEUP's Moodle students frustrated with the need to use a different app, Uni Moodle Module integrates Moodle into the Uni app, allowing users to visualize Moodle's Curricular Units' contents. Unlike the Moodle app the UMM doesn't require constant internet connection allowing for quick reference to previously visualized documents.
+Thank you!
 
-## Main Features
- - List current curicular units
- - Access UC's Moodle sections, if available
- - Download Moodle documents
- - Offline access to selected Moodle contents
- - Access moodle's forum
- - Moodle's calendar notifications
- - Messages to other users
-
-## Required API's
-- Students curricular units from Sigarra
-- Moodle API
+Bruno Gomes
+José Costa
+Margarida Ferreira
+Sara Marinha

@@ -263,7 +263,7 @@ class BugReportFormState extends State<BugReportForm> {
 
     clearForm();
     FocusScope.of(context).requestFocus(FocusNode());
-    ToastMessage.display(context, toastMsg);
+    ToastMessage().display(context, toastMsg);
 
     setState(() {
       _isButtonTapped = false;

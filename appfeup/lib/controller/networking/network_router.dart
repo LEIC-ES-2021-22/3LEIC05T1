@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
@@ -43,12 +45,15 @@ class NetworkRouter {
     if (response.statusCode == 200) {
       final Session session = Session.fromLogin(response);
       session.persistentSession = persistentSession;
+      loginMoodle(session);
+
       Logger().i('Login successful');
       return session;
     } else {
       Logger().e('Login failed');
       return Session(authenticated: false);
     }
+
   }
 
   /// Determines if a re-login with the [session] is possible.
@@ -71,6 +76,7 @@ class NetworkRouter {
   /// Re-authenticates the user [session].
   static Future<bool> loginFromSession(Session session) async {
     Logger().i('Trying to login...');
+    print("login from session...");
     final String url =
         NetworkRouter.getBaseUrl(session.faculty) + 'mob_val_geral.autentica';
     final http.Response response = await http.post(url.toUri(), body: {
@@ -84,6 +90,7 @@ class NetworkRouter {
       session.type = responseBody['tipo'];
       session.cookies = NetworkRouter.extractCookies(response.headers);
       Logger().i('Re-login successful');
+      loginMoodle(session);
       return true;
     } else {
       Logger().e('Re-login failed');
@@ -91,6 +98,51 @@ class NetworkRouter {
     }
   }
 
+  static Future<bool> loginMoodle(Session session) async{
+
+      //https://sigarra.up.pt/feup/pt/moodle_portal.go_moodle_portal_up?p_codigo=201906401
+      Logger().i('Trying to login to moodle...');
+      final String url =
+          NetworkRouter.getBaseUrl(session.faculty) +
+              'moodle_portal.go_moodle_portal_up?';
+      final Map<String, String> urlParams = Map();
+      urlParams['p_codigo'] = session.studentNumber;
+
+      final http.Response response = await getWithCookies(
+          url, urlParams, session)
+          .timeout(const Duration(seconds: loginRequestTimeout));
+      final  document = parse(response.body);
+      final  List<dynamic> scripts = document.querySelectorAll('script');
+      String sesskey = null;
+      for(dynamic script in scripts) {
+        final String scriptStr = script.innerHtml;
+
+        for (String s in scriptStr.split(';')) {
+          if (s.contains('M.cfg')) {
+            s = s.replaceFirst('M.cfg = ', '');
+            final mcfg = json.decode(s);
+            sesskey = mcfg['sesskey'];
+            break;
+          }
+        }
+        if(sesskey != null){
+          break;
+        }
+      }
+      session.moodleSessionKey = sesskey;
+
+      if (response.statusCode == 200 ) {
+        session.authenticated = true;
+        session.cookies = NetworkRouter.extractCookies(response.headers);
+        Logger().i('Re-login successful');
+        return true;
+      } else {
+        Logger().e('Re-login failed');
+        return false;
+      }
+
+
+  }
   /// Extracts the cookies present in [headers].
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
@@ -151,9 +203,9 @@ class NetworkRouter {
     });
 
     final url = baseUrl + params.toString();
-
     final Map<String, String> headers = Map<String, String>();
     headers['cookie'] = session.cookies;
+
     final http.Response response = await (httpClient != null
         ? httpClient.get(url.toUri(), headers: headers)
         : http.get(url.toUri(), headers: headers));
@@ -173,6 +225,38 @@ class NetworkRouter {
     } else {
       return Future.error('HTTP Error ${response.statusCode}');
     }
+  }
+
+  static Future<http.Response> postWithCookies(String url, Session session,
+      Map<String, String> jsonBody) async{
+    final loginSuccessful = await session.loginRequest;
+    if (loginSuccessful is bool && !loginSuccessful) {
+      return Future.error('Login failed');
+    }
+
+    final Map<String, String> headers = Map<String, String>();
+    headers['cookie'] = session.cookies;
+
+
+    final http.Response response = await (httpClient != null
+        ? httpClient.post(url.toUri(), headers: headers, body: jsonBody)
+        : http.get(url.toUri(), headers: headers));
+    if (response.statusCode == 200) {
+      return response;
+    } else if (response.statusCode == 403) {
+      // HTTP403 - Forbidden
+      final bool success = await relogin(session);
+      if (success) {
+        headers['cookie'] = session.cookies;
+        return http.get(url.toUri(), headers: headers);
+      } else {
+        onReloginFail();
+        return Future.error('Login failed');
+      }
+    } else {
+      return Future.error('HTTP Error ${response.statusCode}');
+    }
+
   }
 
   /// Retrieves the name and code of the stops with code [stopCode].
@@ -225,6 +309,10 @@ class NetworkRouter {
   /// Returns the base url of the user's faculty.
   static String getBaseUrl(String faculty) {
     return 'https://sigarra.up.pt/$faculty/pt/';
+  }
+
+  static String getMoodleUrl(){
+    return 'https://moodle.up.pt/';
   }
 
   /// Returns the base url from the user's previous session.

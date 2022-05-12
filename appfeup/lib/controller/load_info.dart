@@ -28,6 +28,7 @@ Future loadReloginInfo(Store<AppState> store) async {
 
     /// TODO: support for multiple faculties. Issue: #445
     store.dispatch(reLogin(userName, password, faculties[0], action: action));
+
     return action.future;
   }
   return Future.error('No credentials stored');

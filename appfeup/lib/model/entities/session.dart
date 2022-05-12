@@ -11,6 +11,7 @@ class Session {
   String type;
   String cookies;
   String studentNumber;
+  String moodleSessionKey;
   Future loginRequest;
 
   Session(

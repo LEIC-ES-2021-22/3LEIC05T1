@@ -2,11 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:uni/controller/networking/network_router.dart';
-import 'package:uni/controller/parsers/parser_restaurants.dart';
 import 'package:uni/model/app_state.dart';
 import 'package:redux/redux.dart';
-import 'package:uni/model/entities/moodle_uc.dart';
-import 'package:uni/model/entities/restaurant.dart';
 import 'package:uni/model/entities/session.dart';
 import 'moodle_ucs_fetcher.dart';
 
@@ -14,8 +11,7 @@ import 'moodle_ucs_fetcher.dart';
 class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
   /// Fetches the user's lectures from the schedule's HTML page.
   @override
-  Future<List<int>> getUcs(Store<AppState> store) async {
-    Session session = store.state.content['session'];
+  Future<List<int>> getUcs(Session session) async {
     final String baseUrl = NetworkRouter.getMoodleUrl() +
         '/lib/ajax/service.php?sesskey='
     + session.moodleSessionKey

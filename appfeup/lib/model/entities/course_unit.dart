@@ -14,7 +14,7 @@ class CourseUnit {
   String ectsGrade;
   String result;
   num ects;
-
+  bool hasMoodle;
   CourseUnit({this.id,
   this.code,
   this.abbreviation,
@@ -28,10 +28,11 @@ class CourseUnit {
   this.grade,
   this.ectsGrade,
   this.result,
-  this.ects});
+  this.ects,
+  this.hasMoodle});
 
   /// Creates a new instance from a JSON object.
-  static CourseUnit fromJson(dynamic data) {
+  static CourseUnit fromJson(dynamic data, {bool hasMoodle = false}) {
     return CourseUnit(
       id: data['ucurr_id'],
       code: data['ucurr_codigo'],
@@ -46,8 +47,17 @@ class CourseUnit {
       grade: data['resultado_melhor'],
       ectsGrade: data['resultado_ects'],
       result: data['resultado_insc'],
-      ects: data['creditos_ects']
+      ects: data['creditos_ects'],
+      hasMoodle: hasMoodle
     );
+  }
+
+  Map<String, dynamic> toMap(){
+    return {
+      'id' : id,
+      'name' : name,
+      'has_moodle': hasMoodle ? 1 : 0
+    };
   }
 
 }

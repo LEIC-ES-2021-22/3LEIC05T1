@@ -7,6 +7,8 @@ import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/model/entities/bus.dart';
 import 'package:uni/model/entities/bus_stop.dart';
 import 'package:uni/model/entities/course_unit.dart';
@@ -177,15 +179,24 @@ class NetworkRouter {
         url, {'pv_codigo': session.studentNumber}, session);
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
+
+      final MoodleUcsFetcher moodleUcsFetcher = MoodleUcsFetcherAPI();
+      final List<int> ucsWithMoodle = await moodleUcsFetcher.getUcs(session);
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
-          ucs.add(CourseUnit.fromJson(uc));
+          ucs.add(CourseUnit.fromJson(uc,
+              hasMoodle : ucsWithMoodle.contains(int.parse(uc['id']))
+          ));
         }
       }
+
+
+
       return ucs;
     }
     return <CourseUnit>[];
+
   }
 
   /// Makes an authenticated GET request with the given [session] to the

@@ -7,6 +7,7 @@ import 'package:tuple/tuple.dart';
 import 'package:uni/controller/load_info.dart';
 import 'package:uni/controller/load_static/terms_and_conditions.dart';
 import 'package:uni/controller/local_storage/app_bus_stop_database.dart';
+
 import 'package:uni/controller/local_storage/app_courses_database.dart';
 import 'package:uni/controller/local_storage/app_exams_database.dart';
 import 'package:uni/controller/local_storage/app_last_user_info_update_database.dart';
@@ -15,6 +16,7 @@ import 'package:uni/controller/local_storage/app_refresh_times_database.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
 import 'package:uni/controller/local_storage/app_user_database.dart';
 import 'package:uni/controller/local_storage/app_restaurant_database.dart';
+import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
 import 'package:uni/controller/networking/network_router.dart'
     show NetworkRouter;
 import 'package:uni/controller/parsers/parser_courses.dart';
@@ -116,7 +118,11 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
       });
       final ucs =
           NetworkRouter.getCurrentCourseUnits(store.state.content['session'])
-              .then((res) => store.dispatch(SaveUcsAction(res)));
+              .then((res) {
+            store.dispatch(SaveUcsAction(res));
+            final CourseUnitsDatabase db = CourseUnitsDatabase();
+            db.saveCourseUnits(res);
+          });
       await Future.wait([profile, ucs]);
 
       final Tuple2<String, String> userPersistentInfo =

@@ -22,7 +22,7 @@ class SectionCard extends StatefulWidget{
         Row(
           children: <Widget>[
             Flexible( 
-              child: Text(this.section.description,
+              child: Text(this.section.summary,
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.fade, 
@@ -36,7 +36,7 @@ class SectionCard extends StatefulWidget{
     
   }
 
-  String getTitle() => this.section.name;
+  String getTitle() => this.section.title;
 
 }
 

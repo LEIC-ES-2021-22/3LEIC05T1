@@ -1,14 +1,14 @@
-class MoodleModule {
-  int id;
-  String title;
-  String type;
-  String description;
+class MoodleActivity {
+  final int id;
+  final String title;
+  final String type;
+  final String description;
 
 
-  MoodleModule(this.id, this.title, this.type, {this.description = ''});
+  MoodleActivity(this.id, this.title, this.type, {this.description = ''});
 
-  static MoodleModule fromMap(Map<String, dynamic> map){
-    return MoodleModule(
+  static MoodleActivity fromMap(Map<String, dynamic> map){
+    return MoodleActivity(
         map['id'],
         map['title'],
         map['type'],

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/time_utilities.dart';
-import 'package:uni/model/entities/section.dart';
+import 'package:uni/model/entities/Moodle/section.dart';
 
 class SectionCard extends StatefulWidget{
   
@@ -30,7 +30,7 @@ class SectionCard extends StatefulWidget{
 
         Row(
           children: <Widget>[
-            Text(this.section.activity)]),
+            Text('')]),
       ]
     ); 
     

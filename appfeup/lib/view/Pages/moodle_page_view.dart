@@ -5,7 +5,7 @@ import 'package:uni/model/entities/course.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:uni/model/entities/course_unit.dart';
-import 'package:uni/model/entities/section.dart';
+import 'package:uni/model/entities/Moodle/section.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 import 'package:uni/view/Widgets/account_info_card.dart';
 import 'package:uni/view/Widgets/course_info_card.dart';
@@ -53,7 +53,7 @@ class MoodlePageViewState extends UnnamedPageView {
           
           ),
       ];
-    final List<Section> sections = [Section(1, 'Section 1', 'This the section 1', 'File'), Section(2, 'Section 2', 'This the section 2', 'File'), Section(3, 'Section 3', 'This the section 3', 'File')];
+    final List<Section> sections = [Section(1, 'Section 1', 'This the section 1'), Section(2, 'Section 2', 'This the section 2'), Section(3, 'Section 3', 'This the section 3',)];
 
     for (Section section in sections) {
           list.add(SectionCard(section));

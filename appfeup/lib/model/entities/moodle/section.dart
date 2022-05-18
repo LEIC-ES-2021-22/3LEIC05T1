@@ -1,18 +1,19 @@
-class Section {
-  int id;
-  String title;
-  String summary;
-  String activity;
-  //List<Activity>
+import 'package:uni/model/entities/Moodle/moodle_activity.dart';
 
-  Section(this.id, this.title, this.summary, this.activity);
+class Section {
+  final int id;
+  final String title;
+  final String summary;
+
+  final List<MoodleActivity> activities;
+
+  Section(this.id, this.title, this.summary, {this.activities});
 
   static Section fromMap(Map<String, dynamic> map){
     return Section(
       map['id'],
       map['title'],
-      map['summary'],
-      ''
+      map['summary']
     );
   }
 

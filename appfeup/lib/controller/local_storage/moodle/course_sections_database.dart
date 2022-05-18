@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:uni/model/entities/moodle_module.dart';
-import 'package:uni/model/entities/section.dart';
+import 'package:uni/model/entities/Moodle/moodle_activity.dart';
+import 'package:uni/model/entities/Moodle/section.dart';
 
 import '../app_database.dart';
 
@@ -44,11 +44,11 @@ class CourseSectionsDatabase extends AppDatabase{
         batch.commit(noResult: true);
     }
 
-    Future<void> saveModules(List<MoodleModule> modules, int sectionId) async{
+    Future<void> saveModules(List<MoodleActivity> modules, int sectionId) async{
         final Database db = await getDatabase();
         final Batch batch = db.batch();
 
-        for(MoodleModule module in modules){
+        for(MoodleActivity module in modules){
             batch.insert('section_modules', module.toMap(sectionId));
         }
         batch.commit(noResult: true);

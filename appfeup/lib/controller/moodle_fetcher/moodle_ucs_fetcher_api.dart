@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:logger/logger.dart';
 import 'package:uni/controller/networking/network_router.dart';
 import 'package:uni/model/app_state.dart';
 import 'package:redux/redux.dart';
@@ -12,31 +13,41 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
   /// Fetches the user's lectures from the schedule's HTML page.
   @override
   Future<List<int>> getUcs(Session session) async {
+    Logger().i("Get ucs...");
+    Logger().i('Moodle session key = ' + session.moodleSessionKey);
     final String baseUrl = NetworkRouter.getMoodleUrl() +
         '/lib/ajax/service.php?sesskey='
     + session.moodleSessionKey
     + '&info=core_course_get_enrolled_courses_by_timeline_classification';
 
+
     //Change to customfield to filter by semester
-    final Map<String, String> body = {
-      'classification' : 'allincludinghidden', //allincludinghidden to show all
-      'sort' : 'shortname',
-      'customfieldname' : 'periodo',
-      'customfieldvalue' : '2'
+    final Map<String, dynamic> body = {
+      'index' : 0,
+      'methodname' : 'core_course_get_enrolled_courses_by_timeline_classification',
+      'args' : {
+        'offset': 0,
+        'limit': 0,
+        'classification': 'allincludinghidden', //allincludinghidden to show all
+        'sort': 'shortname',
+        'customfieldname': 'periodo',
+        'customfieldvalue': '2',
+      }
     };
 
 
 
-    final Future<Response> response =
-    NetworkRouter.postWithCookies(baseUrl, session, body);
+    final Response response =
+      await NetworkRouter.postWithCookies(baseUrl, session, body);
 
 
-    return getUcsFromResponse(await response);
+    return getUcsFromResponse(response);
   }
 
 
   Future<List<int>> getUcsFromResponse (Response response) async{
-    final json = jsonDecode(response.body);
+    final json = jsonDecode(response.body)[0];
+    print('response json = ' + response.body);
     final responseJson = json['response'];
     if(responseJson['error'].toBoolean()){
       //Throw error

@@ -134,8 +134,11 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
         final AppCoursesDatabase coursesDb = AppCoursesDatabase();
         await coursesDb.saveNewCourses(userProfile.courses);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       Logger().e('Failed to get User Info');
+      Logger().e(e.toString());
+      Logger().e(stackTrace);
+
       store.dispatch(SaveProfileStatusAction(RequestStatus.failed));
     }
 

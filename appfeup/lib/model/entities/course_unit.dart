@@ -55,8 +55,8 @@ class CourseUnit {
   Map<String, dynamic> toMap(){
     return {
       'id' : id,
-      'name' : name,
-      'has_moodle': hasMoodle ? 1 : 0
+      'designation' : name,
+      'has_moodle': hasMoodle ? 1 : 0,
     };
   }
 

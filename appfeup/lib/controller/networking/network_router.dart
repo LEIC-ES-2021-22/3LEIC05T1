@@ -92,7 +92,7 @@ class NetworkRouter {
       session.type = responseBody['tipo'];
       session.cookies = NetworkRouter.extractCookies(response.headers);
       Logger().i('Re-login successful');
-      loginMoodle(session);
+      //loginMoodle(session);
       return true;
     } else {
       Logger().e('Re-login failed');
@@ -114,6 +114,7 @@ class NetworkRouter {
           url, urlParams, session)
           .timeout(const Duration(seconds: loginRequestTimeout));
       final  document = parse(response.body);
+      Logger().i("MOODLE PAGE " + response.body);
       final  List<dynamic> scripts = document.querySelectorAll('script');
       String sesskey = null;
       for(dynamic script in scripts) {
@@ -131,12 +132,13 @@ class NetworkRouter {
           break;
         }
       }
+      Logger().i('Setting session key ' + sesskey);
       session.moodleSessionKey = sesskey;
 
       if (response.statusCode == 200 ) {
         session.authenticated = true;
         session.cookies = NetworkRouter.extractCookies(response.headers);
-        Logger().i('Re-login successful');
+        Logger().i('Login successful moodle ' + session.cookies);
         return true;
       } else {
         Logger().e('Re-login failed');
@@ -149,6 +151,8 @@ class NetworkRouter {
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
     final String cookies = headers['set-cookie'];
+    print('Cookies! = ' + cookies);
+    print('headers = ' + headers.toString());
     if (cookies != null) {
       final List<String> rawCookies = cookies.split(',');
       for (var c in rawCookies) {
@@ -181,6 +185,7 @@ class NetworkRouter {
       final responseBody = json.decode(response.body);
 
       final MoodleUcsFetcher moodleUcsFetcher = MoodleUcsFetcherAPI();
+      await NetworkRouter.loginMoodle(session);
       final List<int> ucsWithMoodle = await moodleUcsFetcher.getUcs(session);
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
@@ -239,7 +244,7 @@ class NetworkRouter {
   }
 
   static Future<http.Response> postWithCookies(String url, Session session,
-      Map<String, String> jsonBody) async{
+      Map<String, dynamic> jsonBody) async{
     final loginSuccessful = await session.loginRequest;
     if (loginSuccessful is bool && !loginSuccessful) {
       return Future.error('Login failed');
@@ -247,11 +252,11 @@ class NetworkRouter {
 
     final Map<String, String> headers = Map<String, String>();
     headers['cookie'] = session.cookies;
-
+    final String jsonStr = '[' + json.encode(jsonBody) + ']';
 
     final http.Response response = await (httpClient != null
-        ? httpClient.post(url.toUri(), headers: headers, body: jsonBody)
-        : http.get(url.toUri(), headers: headers));
+        ? httpClient.post(url.toUri(), headers: headers, body: jsonStr)
+        : http.post(url.toUri(), headers: headers, body: jsonStr));
     if (response.statusCode == 200) {
       return response;
     } else if (response.statusCode == 403) {
@@ -259,7 +264,7 @@ class NetworkRouter {
       final bool success = await relogin(session);
       if (success) {
         headers['cookie'] = session.cookies;
-        return http.get(url.toUri(), headers: headers);
+        return http.post(url.toUri(), headers: headers, body: jsonStr);
       } else {
         onReloginFail();
         return Future.error('Login failed');

@@ -47,7 +47,7 @@ class NetworkRouter {
     if (response.statusCode == 200) {
       final Session session = Session.fromLogin(response);
       session.persistentSession = persistentSession;
-      loginMoodle(session);
+
 
       Logger().i('Login successful');
       return session;

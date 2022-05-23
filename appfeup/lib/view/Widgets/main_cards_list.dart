@@ -39,6 +39,7 @@ class MainCardsList extends StatelessWidget {
   }
 
   Widget createActionButton(BuildContext context) {
+    const testKey = Key('editHomePageCards');
     return FloatingActionButton(
       onPressed: () => showDialog(
           context: context,

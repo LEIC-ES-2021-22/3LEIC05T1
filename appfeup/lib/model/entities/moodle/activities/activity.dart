@@ -1,0 +1,9 @@
+abstract class Activity {
+
+
+  Activity()
+  {
+
+  }
+
+}

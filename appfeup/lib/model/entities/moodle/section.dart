@@ -1,9 +1,9 @@
+import
 class Section {
   int id;
   String name;
   String description;
-  String activity;
-  //List<Activity>
+  List<Activity> activity;
 
   Section(this.id, this.name, this.description, this.activity);
 

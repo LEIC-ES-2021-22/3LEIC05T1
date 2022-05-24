@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
+import 'package:uni/controller/federated_authentication/client.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
@@ -27,6 +28,7 @@ extension UriString on String{
 class NetworkRouter {
   static http.Client httpClient;
 
+  static FederatedHttpClient fedClient;
   static const int loginRequestTimeout = 20;
 
   static Lock loginLock = Lock();
@@ -48,8 +50,13 @@ class NetworkRouter {
       final Session session = Session.fromLogin(response);
       session.persistentSession = persistentSession;
 
-
+      try {
+        fedClient = FederatedHttpClient('up201906401@fe.up.pt', pass);
+      } catch(e){
+        Logger().i('FED não tem cookie ' + e.toString());
+      }
       Logger().i('Login successful');
+      //await loginSigarraWeb(session, user, pass, faculty);
       return session;
     } else {
       Logger().e('Login failed');
@@ -100,21 +107,32 @@ class NetworkRouter {
     }
   }
 
-  static Future<bool> loginMoodle(Session session) async{
+  static Future<bool> loginMoodle(Session session) async {
 
+    ///auth/shibboleth/index.php
+    String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
+    await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
+    await fedClient.login(url);
+
+    http.Response res = await fedClient.get(Uri.parse(NetworkRouter.getMoodleUrl() + '/my'));
+    Logger().i('Final response = ' + res.body);
+
+
+    /*
       //https://sigarra.up.pt/feup/pt/moodle_portal.go_moodle_portal_up?p_codigo=201906401
       Logger().i('Trying to login to moodle...');
-      final String url =
+      String url =
           NetworkRouter.getBaseUrl(session.faculty) +
               'moodle_portal.go_moodle_portal_up?';
+      url = 'https://sigarra.up.pt/feup/pt/moodle_portal.go_moodle_portal_up?p_codigo=201906401';
       final Map<String, String> urlParams = Map();
-      urlParams['p_codigo'] = session.studentNumber;
+      //urlParams['p_codigo'] = session.studentNumber;
 
       final http.Response response = await getWithCookies(
-          url, urlParams, session)
+          url, urlParams, session, cookies : session.sigarraWebCookies)
           .timeout(const Duration(seconds: loginRequestTimeout));
       final  document = parse(response.body);
-      Logger().i("MOODLE PAGE " + response.body);
+      Logger().i('Moodle page body = ' + response.body);
       final  List<dynamic> scripts = document.querySelectorAll('script');
       String sesskey = null;
       for(dynamic script in scripts) {
@@ -137,7 +155,7 @@ class NetworkRouter {
 
       if (response.statusCode == 200 ) {
         session.authenticated = true;
-        session.cookies = NetworkRouter.extractCookies(response.headers);
+        session.cookies += ';' + NetworkRouter.extractCookies(response.headers);
         Logger().i('Login successful moodle ' + session.cookies);
         return true;
       } else {
@@ -145,7 +163,40 @@ class NetworkRouter {
         return false;
       }
 
+     */
+  }
 
+  static Future<bool>
+    loginSigarraWeb(Session session, String user, String pass, String faculty) async{
+    try {
+
+      final String url =
+          NetworkRouter.getBaseUrl(faculty) + 'vld_validacao.validacao';
+      Logger().i('Start login sigarra web ' + url);
+      final http.Response response = await http.post(url.toUri(), body : {
+        'p_user': user,
+        'p_pass': pass,
+        'p_app': '162',
+        'p_amo': '55'
+      }, headers: {
+
+        'Connection': 'Keep-Alive',
+        'Accept-Encoding': 'gzip, deflate, br',
+
+
+      }).timeout(const Duration(seconds: loginRequestTimeout));
+      Logger().i('Status code = ' + response.statusCode.toString());
+      //session.sigarraWebCookies = response.headers['set-cookie'];
+      session.sigarraWebCookies = extractCookies(response.headers);
+      Logger().i('sigarra cookies  = ' + session.sigarraWebCookies);
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch(e){
+      Logger().i('Error sigarra web + ' + e.toString());
+    }
   }
   /// Extracts the cookies present in [headers].
   static String extractCookies(dynamic headers) {
@@ -159,6 +210,7 @@ class NetworkRouter {
         cookieList.add(Cookie.fromSetCookieValue(c).toString());
       }
     }
+    Logger().i('extracted Cookies ' + cookieList.join(';'));
     return cookieList.join(';');
   }
 
@@ -207,7 +259,11 @@ class NetworkRouter {
   /// Makes an authenticated GET request with the given [session] to the
   /// resource located at [url] with the given [query] parameters.
   static Future<http.Response> getWithCookies(
-      String baseUrl, Map<String, String> query, Session session) async {
+      String baseUrl, Map<String, String> query, Session session,
+    {cookies = null}) async {
+    if(cookies == null){
+      cookies = session.cookies;
+    }
     final loginSuccessful = await session.loginRequest;
     if (loginSuccessful is bool && !loginSuccessful) {
       return Future.error('Login failed');
@@ -220,8 +276,8 @@ class NetworkRouter {
 
     final url = baseUrl + params.toString();
     final Map<String, String> headers = Map<String, String>();
-    headers['cookie'] = session.cookies;
-
+    headers['cookie'] = cookies;
+    Logger().i("login moodle Cookies = " + cookies);
     final http.Response response = await (httpClient != null
         ? httpClient.get(url.toUri(), headers: headers)
         : http.get(url.toUri(), headers: headers));
@@ -231,7 +287,7 @@ class NetworkRouter {
       // HTTP403 - Forbidden
       final bool success = await relogin(session);
       if (success) {
-        headers['cookie'] = session.cookies;
+        headers['cookie'] = cookies;
         return http.get(url.toUri(), headers: headers);
       } else {
         onReloginFail();

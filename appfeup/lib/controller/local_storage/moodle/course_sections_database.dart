@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
-import 'package:uni/model/entities/moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 
 import '../app_database.dart';
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 import 'package:tuple/tuple.dart';
 import 'package:redux/redux.dart';
 import 'package:uni/controller/local_storage/image_offline_storage.dart';
@@ -66,6 +67,7 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
   store.dispatch(getUserBusTrips(trips));
   store.dispatch(getRestaurantsFromFetcher(restaurants));
 
+  _getMoodleInfo(store);
 
   final Tuple2<String, String> userPersistentInfo =
       await AppSharedPreferences.getPersistentUserInfo();
@@ -88,6 +90,14 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
     store.dispatch(setLastUserInfoUpdateTimestamp(lastUpdate));
   });
   return lastUpdate.future;
+}
+
+void _getMoodleInfo(Store<AppState> store) async{
+  try{
+
+  }catch(e, s){
+    Logger().e(s);
+  }
 }
 
 void loadLocalUserInfoToState(store) async {

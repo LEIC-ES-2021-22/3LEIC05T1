@@ -1,3 +1,5 @@
+import 'package:uni/utils/constants.dart';
+
 /// Stores information about a course unit.
 class CourseUnit {
   int id;
@@ -15,6 +17,8 @@ class CourseUnit {
   String result;
   num ects;
   bool hasMoodle;
+  int moodleId;
+
   CourseUnit({this.id,
   this.code,
   this.abbreviation,
@@ -29,10 +33,11 @@ class CourseUnit {
   this.ectsGrade,
   this.result,
   this.ects,
-  this.hasMoodle});
+  this.hasMoodle,
+  this.moodleId});
 
   /// Creates a new instance from a JSON object.
-  static CourseUnit fromJson(dynamic data, {bool hasMoodle = false}) {
+  static CourseUnit fromJson(dynamic data, {bool hasMoodle = false, moodleId = -1}) {
     return CourseUnit(
       id: data['ucurr_id'],
       code: data['ucurr_codigo'],
@@ -48,7 +53,8 @@ class CourseUnit {
       ectsGrade: data['resultado_ects'],
       result: data['resultado_insc'],
       ects: data['creditos_ects'],
-      hasMoodle: hasMoodle
+      hasMoodle: hasMoodle,
+      moodleId: moodleId,
     );
   }
 

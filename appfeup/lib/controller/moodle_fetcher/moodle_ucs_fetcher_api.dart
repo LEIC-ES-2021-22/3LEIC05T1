@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:uni/controller/networking/network_router.dart';
 import 'package:uni/model/app_state.dart';
 import 'package:redux/redux.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/session.dart';
 import 'moodle_ucs_fetcher.dart';
 
@@ -12,7 +13,7 @@ import 'moodle_ucs_fetcher.dart';
 class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
   /// Fetches the user's lectures from the schedule's HTML page.
   @override
-  Future<List<int>> getUcs(Session session) async {
+  Future<List<MoodleCourseUnit>> getUcs(Session session) async {
     Logger().i("Get ucs...");
     Logger().i('Moodle session key = ' + session.moodleSessionKey);
     final String baseUrl = NetworkRouter.getMoodleUrl() +
@@ -45,7 +46,7 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
   }
 
 
-  Future<List<int>> getUcsFromResponse (Response response) async{
+  Future<List<MoodleCourseUnit>> getUcsFromResponse (Response response) async{
     final json = jsonDecode(response.body)[0];
     print('response json = ' + jsonEncode(json));
 
@@ -56,10 +57,8 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
       for(dynamic course in courses){
         Logger().i('courseid =' + course['id'].toString());
       }
-      final List<int> courseIds =  courses.map(
-              (course) =>  course['id'] as int
-      ).toList();
-      return courseIds;
+      return courses.map(
+            (course) =>  MoodleCourseUnit.fromMap(course)).toList();
 
     }
   }

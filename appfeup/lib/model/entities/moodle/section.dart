@@ -1,4 +1,6 @@
-import 'package:uni/model/entities/Moodle/moodle_activity.dart';
+
+
+import 'moodle_activity.dart';
 
 class Section {
   final int id;

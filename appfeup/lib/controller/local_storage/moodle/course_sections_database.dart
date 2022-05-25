@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:uni/model/entities/Moodle/moodle_activity.dart';
-import 'package:uni/model/entities/Moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_activity.dart';
+import 'package:uni/model/entities/moodle/section.dart';
 
 import '../app_database.dart';
 
@@ -22,7 +22,6 @@ class CourseSectionsDatabase extends AppDatabase{
         type TEXT,
         description TEXT
         )
-    )
     ''']);
 
     Future<List<Section>> getSections(int ucId) async{

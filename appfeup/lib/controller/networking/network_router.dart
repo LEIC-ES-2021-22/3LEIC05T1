@@ -13,6 +13,7 @@ import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/model/entities/bus.dart';
 import 'package:uni/model/entities/bus_stop.dart';
 import 'package:uni/model/entities/course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/session.dart';
 import 'package:uni/model/entities/trip.dart';
@@ -169,6 +170,14 @@ class NetworkRouter {
     return response;
   }
 
+  static Future<http.Response> federatedGet(String url) async{
+    final http.Response response = await fedClient.request(url,
+        method:'get',
+        contentType: 'text/html');
+    //Logger().i('Response from ' + url + ':\n' + response.body);
+    return response;
+  }
+
   /// Extracts the cookies present in [headers].
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
@@ -209,18 +218,29 @@ class NetworkRouter {
 
       final MoodleUcsFetcher moodleUcsFetcher = MoodleUcsFetcherAPI();
       await NetworkRouter.loginMoodle(session);
-      final List<int> ucsWithMoodle = await moodleUcsFetcher.getUcs(session);
+      final List<MoodleCourseUnit> ucsWithMoodle = await moodleUcsFetcher.getUcs(session);
+
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
-          ucs.add(CourseUnit.fromJson(uc,
-              hasMoodle : ucsWithMoodle.contains(uc['id'])
-          ));
+          Logger().i('uciddd = ' + uc['id'].toString());
+          bool hasMoodle = false;
+          for(MoodleCourseUnit courseUnit in ucsWithMoodle){
+            if (uc['ucurr_nome'] == courseUnit.fullName){
+              hasMoodle = true;
+              ucs.add(CourseUnit.fromJson(uc,
+                  hasMoodle : hasMoodle,
+                  moodleId: courseUnit.id
+              ));
+              break;
+            }
+          }
+          if(!hasMoodle) {
+            ucs.add(CourseUnit.fromJson(uc, hasMoodle: hasMoodle));
+          }
         }
       }
-
-
-
+      Logger().i('Ucs2 =' + ucs.length.toString());
       return ucs;
     }
     return <CourseUnit>[];
@@ -248,7 +268,6 @@ class NetworkRouter {
     final url = baseUrl + params.toString();
     final Map<String, String> headers = Map<String, String>();
     headers['cookie'] = cookies;
-    Logger().i("login moodle Cookies = " + cookies);
     final http.Response response = await (httpClient != null
         ? httpClient.get(url.toUri(), headers: headers)
         : http.get(url.toUri(), headers: headers));

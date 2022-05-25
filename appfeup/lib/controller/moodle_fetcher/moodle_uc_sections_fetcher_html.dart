@@ -3,21 +3,23 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
+import 'package:logger/logger.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/course_unit.dart';
-import 'package:uni/model/entities/Moodle/moodle_activity.dart';
-import 'package:uni/model/entities/Moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_activity.dart';
+import 'package:uni/model/entities/moodle/section.dart';
 import 'package:uni/model/entities/session.dart';
 import 'package:uni/model/utils/moodle_activity_type.dart';
 
 import '../networking/network_router.dart';
 
-abstract class MoodleUcSectionsFetcher {
-  Future<List<Section>> getSections(Session session, CourseUnit uc) async{
+class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
+  Future<List<Section>> getSections(CourseUnit uc) async{
     final String url = NetworkRouter.getMoodleUrl()
-        + '/course/view.php?id=' + uc.id.toString();
+        + '/course/view.php?id=' + uc.moodleId.toString();
 
     final Future<Response> response =
-      NetworkRouter.getWithCookies(url,{}, session);
+      NetworkRouter.federatedGet(url);
     return _getSectionsFromResponse(await response);
   }
 
@@ -26,15 +28,14 @@ abstract class MoodleUcSectionsFetcher {
     final document = parse(response.body);
     final List<Element> sections =
       document.querySelectorAll('.topics > .section');
-
     return sections.map((sectionElem){
+      Logger().i('inside sections map');
       //Read section info
-      String sectionId = sectionElem.attributes['aria-labeledby'].split('-')[1];
+      String sectionId = sectionElem.attributes['aria-labelledby'].split('-')[1];
       final Element content = sectionElem.querySelector('.content');
       final String title = content.querySelector('h3').text;
       final String summary = content.querySelector('.summary').text;
       final List<Element> moduleElements  = content.querySelectorAll('.activity');
-
       //Read section modules
       final List<MoodleActivity> modules = moduleElements.map((element) {
         _getModuleFromElement(element);

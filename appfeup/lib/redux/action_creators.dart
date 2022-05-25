@@ -16,7 +16,10 @@ import 'package:uni/controller/local_storage/app_refresh_times_database.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
 import 'package:uni/controller/local_storage/app_user_database.dart';
 import 'package:uni/controller/local_storage/app_restaurant_database.dart';
+import 'package:uni/controller/local_storage/moodle/course_sections_database.dart';
 import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher_html.dart';
 import 'package:uni/controller/networking/network_router.dart'
     show NetworkRouter;
 import 'package:uni/controller/parsers/parser_courses.dart';
@@ -32,6 +35,7 @@ import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/entities/lecture.dart';
+import 'package:uni/model/entities/moodle/section.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/restaurant.dart';
 import 'package:uni/model/entities/session.dart';
@@ -122,7 +126,12 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
             store.dispatch(SaveUcsAction(res));
             final CourseUnitsDatabase db = CourseUnitsDatabase();
             db.saveCourseUnits(res);
+            for(CourseUnit unit in res){
+              getMoodleContentsFromFetcher(unit);
+            }
           });
+
+
       await Future.wait([profile, ucs]);
 
       final Tuple2<String, String> userPersistentInfo =
@@ -312,6 +321,22 @@ ThunkAction<AppState> getRestaurantsFromFetcher(Completer<Null> action){
     }
     action.complete();
   };
+}
+
+Future<List<Section>> getMoodleContentsFromFetcher(CourseUnit courseUnit) async{
+    Logger().i('Start moodle contents fetcher');
+    MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
+    List<Section> sections = await fetcher.getSections(courseUnit);
+
+    CourseSectionsDatabase db = CourseSectionsDatabase();
+
+    db.saveSections(sections, courseId: courseUnit.moodleId);
+
+    for(Section section in sections){
+      db.saveModules(section.activities, section.id);
+    }
+    return sections;
+
 }
 
 Future<List<Lecture>> getLecturesFromFetcherOrElse(

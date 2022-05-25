@@ -202,8 +202,6 @@ class FederatedHttpClient extends http.BaseClient {
     if (sentCookies.isNotEmpty) {
       final cookieHeader =
           sentCookies.map((e) => '${e.name}=${e.value}').join('; ') + ';';
-      print('cookieHeader = ' + cookieHeader);
-      printCookies(sentCookies);
       request.headers['Cookie'] = cookieHeader;
     }
 

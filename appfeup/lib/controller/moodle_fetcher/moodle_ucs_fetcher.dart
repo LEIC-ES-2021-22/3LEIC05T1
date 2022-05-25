@@ -1,7 +1,8 @@
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/session.dart';
 
 
 
 abstract class MoodleUcsFetcher {
-  Future<List<int>> getUcs(Session session);
+  Future<List<MoodleCourseUnit>> getUcs(Session session);
 }

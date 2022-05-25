@@ -6,10 +6,11 @@ class Section {
   final int id;
   final String title;
   final String summary;
+  final int courseUnitId;
 
   final List<MoodleActivity> activities;
 
-  Section(this.id, this.title, this.summary, {this.activities});
+  Section(this.id, this.title, this.summary, {this.activities, this.courseUnitId});
 
   static Section fromMap(Map<String, dynamic> map){
     return Section(

@@ -335,6 +335,7 @@ Future<List<Section>> getMoodleContentsFromFetcher(CourseUnit courseUnit) async{
     for(Section section in sections){
       db.saveModules(section.activities, section.id);
     }
+    
     return sections;
 
 }

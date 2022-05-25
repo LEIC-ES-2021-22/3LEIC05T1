@@ -20,11 +20,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
 
     final Future<Response> response =
       NetworkRouter.federatedGet(url);
-    return _getSectionsFromResponse(await response);
+    return _getSectionsFromResponse(await response, uc);
   }
 
 
-  Future<List<Section>> _getSectionsFromResponse(Response response) async{
+  Future<List<Section>> _getSectionsFromResponse(Response response, CourseUnit courseUnit) async{
     final document = parse(response.body);
     final List<Element> sections =
       document.querySelectorAll('.topics > .section');
@@ -40,7 +40,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
         _getActivityFromElement(element);
       }).toList();
 
-      return  Section(int.parse(sectionId), title, summary, activities: activities);
+      return  Section(int.parse(sectionId),
+          title,
+          summary,
+          activities: activities,
+          courseUnitId: courseUnit.moodleId);
     }).toList();
 
   }

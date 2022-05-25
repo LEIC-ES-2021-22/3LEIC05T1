@@ -1,4 +1,4 @@
-import
+import 'activities/activity.dart';
 class Section {
   int id;
   String name;

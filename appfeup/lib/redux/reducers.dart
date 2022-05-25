@@ -96,7 +96,6 @@ AppState setMoodleCourseUnitsAction(AppState state, SetMoodleCourseUnitsAction a
   return state.cloneAndUpdateValue('moodleCourseUnitsMap', action.courseUnits);
 }
 
-
 AppState setExamsStatus(AppState state, SetExamsStatusAction action) {
   Logger().i('setting exams status: ' + action.status.toString());
   return state.cloneAndUpdateValue('examsStatus', action.status);

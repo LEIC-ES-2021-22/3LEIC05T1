@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/time_utilities.dart';
-import 'package:uni/model/entities/Moodle/section.dart';
+import 'package:uni/model/entities/moodle/section.dart';
 
 class SectionCard extends StatefulWidget{
   

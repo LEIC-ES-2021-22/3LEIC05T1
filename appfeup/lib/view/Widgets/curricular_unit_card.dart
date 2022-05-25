@@ -2,25 +2,31 @@ import 'package:uni/model/app_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/view/Pages/moodle_page_view.dart';
 import 'generic_card.dart';
 
 class CurricularUnitCard extends GenericCard {
+  final MoodleCourseUnit moodleCourseUnit;
   final CourseUnit courseUnit;
-  CurricularUnitCard(this.courseUnit, {Key key}) : super(key: key); 
+  CurricularUnitCard(this.courseUnit, this.moodleCourseUnit, {Key key}) : super(key: key);
 
   @override
   String getTitle() => courseUnit.name;
 
   @override
-  onClick(BuildContext context) =>
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MoodlePageView(this.courseUnit)
-        )
-      );
+  onClick(BuildContext context) {
+      if(courseUnit.hasMoodle) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MoodlePageView(this.moodleCourseUnit)
+            )
+        );
+      }
+  }
 
 
   @override
@@ -31,8 +37,9 @@ class CurricularUnitCard extends GenericCard {
         return store.state.content['examsStatus'];
       },
       builder: (context, examsInfo) => 
-              Image.asset(
+              courseUnit.hasMoodle ? Image.asset(
                 'assets/images/moodle_icon.png')
+                  : Text('')
           
        //Text('has moodle')
        

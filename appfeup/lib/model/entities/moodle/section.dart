@@ -1,5 +1,3 @@
-
-
 import 'moodle_activity.dart';
 
 class Section {

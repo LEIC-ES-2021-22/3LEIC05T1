@@ -5,7 +5,8 @@ import 'package:uni/model/entities/course.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:uni/model/entities/course_unit.dart';
-import 'package:uni/model/entities/Moodle/section.dart';
+import 'package:uni/model/entities/moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 import 'package:uni/view/Widgets/account_info_card.dart';
 import 'package:uni/view/Widgets/course_info_card.dart';
@@ -14,7 +15,7 @@ import 'package:uni/view/Widgets/print_info_card.dart';
 import 'package:uni/view/Widgets/section_card.dart';
 
 class MoodlePageView extends StatefulWidget {
-  CourseUnit uc;
+  MoodleCourseUnit uc;
   MoodlePageView(this.uc);
   @override
   State<StatefulWidget> createState() => MoodlePageViewState(this.uc);
@@ -22,7 +23,7 @@ class MoodlePageView extends StatefulWidget {
 
 /// Manages the 'Personal user page' section.
 class MoodlePageViewState extends UnnamedPageView {
-  CourseUnit uc;
+  MoodleCourseUnit uc;
   MoodlePageViewState(this.uc);
 
   @override
@@ -47,13 +48,12 @@ class MoodlePageViewState extends UnnamedPageView {
           child: 
          
             Text(
-              this.uc.name, 
+              this.uc.fullName,
               style:
                 Theme.of(context).textTheme.headline6.apply(fontSizeFactor: 1.3),)
-          
           ),
       ];
-    final List<Section> sections = [Section(1, 'Section 1', 'This the section 1'), Section(2, 'Section 2', 'This the section 2'), Section(3, 'Section 3', 'This the section 3',)];
+    final List<Section> sections = uc.sections;
 
     for (Section section in sections) {
           list.add(SectionCard(section));

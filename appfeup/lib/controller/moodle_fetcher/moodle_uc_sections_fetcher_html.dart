@@ -34,18 +34,18 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
       final Element content = sectionElem.querySelector('.content');
       final String title = content.querySelector('h3').text;
       final String summary = content.querySelector('.summary').text;
-      final List<Element> moduleElements  = content.querySelectorAll('.activity');
+      final List<Element> activityElements  = content.querySelectorAll('.activity');
       //Read section modules
-      final List<MoodleActivity> modules = moduleElements.map((element) {
-        _getModuleFromElement(element);
+      final List<MoodleActivity> activities = activityElements.map((element) {
+        _getActivityFromElement(element);
       }).toList();
 
-      return  Section(int.parse(sectionId), title, summary, activities: modules);
+      return  Section(int.parse(sectionId), title, summary, activities: activities);
     }).toList();
 
   }
 
-  MoodleActivity  _getModuleFromElement(Element element){
+  MoodleActivity  _getActivityFromElement(Element element){
     MoodleActivityType type;
     for(String elemClass in element.classes){
       type = stringToActivityEnum(elemClass);

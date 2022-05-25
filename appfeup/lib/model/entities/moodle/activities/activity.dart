@@ -1,9 +1,16 @@
 abstract class Activity {
 
 
-  Activity()
-  {
 
+  String name;
+
+  Activity(String name)
+  {
+    this.name = name;
   }
 
+  String getName()
+  {
+    return this.name;
+  }
 }

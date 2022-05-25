@@ -39,7 +39,7 @@ class CurricularUnitCard extends GenericCard {
       builder: (context, examsInfo) => 
               courseUnit.hasMoodle ? Image.asset(
                 'assets/images/moodle_icon.png')
-                  : Text('')
+                  : Container()
           
        //Text('has moodle')
        

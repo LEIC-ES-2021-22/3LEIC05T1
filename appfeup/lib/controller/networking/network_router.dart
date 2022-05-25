@@ -127,24 +127,12 @@ class NetworkRouter {
 
 
 
-    http.Response res = await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
-    Logger().i('Final response redirect = ' + res.isRedirect.toString());
-    Logger().i('Final response = ' + res.body);
+    http.Response response = await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
+    //Logger().i('Final response redirect = ' + res.isRedirect.toString());
+    //Logger().i('Final response = ' + res.body);
 
 
-    /*
-      //https://sigarra.up.pt/feup/pt/moodle_portal.go_moodle_portal_up?p_codigo=201906401
-      Logger().i('Trying to login to moodle...');
-      String url =
-          NetworkRouter.getBaseUrl(session.faculty) +
-              'moodle_portal.go_moodle_portal_up?';
-      url = 'https://sigarra.up.pt/feup/pt/moodle_portal.go_moodle_portal_up?p_codigo=201906401';
-      final Map<String, String> urlParams = Map();
-      //urlParams['p_codigo'] = session.studentNumber;
 
-      final http.Response response = await getWithCookies(
-          url, urlParams, session, cookies : session.sigarraWebCookies)
-          .timeout(const Duration(seconds: loginRequestTimeout));
       final  document = parse(response.body);
       Logger().i('Moodle page body = ' + response.body);
       final  List<dynamic> scripts = document.querySelectorAll('script');
@@ -167,51 +155,20 @@ class NetworkRouter {
       Logger().i('Setting session key ' + sesskey);
       session.moodleSessionKey = sesskey;
 
-      if (response.statusCode == 200 ) {
-        session.authenticated = true;
-        session.cookies += ';' + NetworkRouter.extractCookies(response.headers);
-        Logger().i('Login successful moodle ' + session.cookies);
-        return true;
-      } else {
-        Logger().e('Re-login failed');
-        return false;
-      }
 
-     */
   }
 
-  static Future<bool>
-    loginSigarraWeb(Session session, String user, String pass, String faculty) async{
-    try {
+  static Future<http.Response>
+    federatedPost(String url, String body, Session session) async{
 
-      final String url =
-          NetworkRouter.getBaseUrl(faculty) + 'vld_validacao.validacao';
-      Logger().i('Start login sigarra web ' + url);
-      final http.Response response = await http.post(url.toUri(), body : {
-        'p_user': user,
-        'p_pass': pass,
-        'p_app': '162',
-        'p_amo': '55'
-      }, headers: {
-
-        'Connection': 'Keep-Alive',
-        'Accept-Encoding': 'gzip, deflate, br',
-
-
-      }).timeout(const Duration(seconds: loginRequestTimeout));
-      Logger().i('Status code = ' + response.statusCode.toString());
-      //session.sigarraWebCookies = response.headers['set-cookie'];
-      session.sigarraWebCookies = extractCookies(response.headers);
-      Logger().i('sigarra cookies  = ' + session.sigarraWebCookies);
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch(e){
-      Logger().i('Error sigarra web + ' + e.toString());
-    }
+    final http.Response response = await fedClient.request(url,
+        body:body,
+        method:'POST',
+        contentType: 'application/json');
+    Logger().i('Response from ' + url + ':\n' + response.body);
+    return response;
   }
+
   /// Extracts the cookies present in [headers].
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
@@ -257,7 +214,7 @@ class NetworkRouter {
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
           ucs.add(CourseUnit.fromJson(uc,
-              hasMoodle : ucsWithMoodle.contains(int.parse(uc['id']))
+              hasMoodle : ucsWithMoodle.contains(uc['id'])
           ));
         }
       }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:html/parser.dart' as html;
 import 'package:http/http.dart' as http;
@@ -77,7 +78,6 @@ class FederatedHttpClient extends http.BaseClient {
     do {
       var document = html.parse(lastResponse.body);
       var title = document.querySelector('head > title')?.text;
-      Logger().i('TITLE = ' + title);
       if (title == 'Web Login Service') {
         final authFields = {
           'username': _username,
@@ -91,7 +91,6 @@ class FederatedHttpClient extends http.BaseClient {
         final formMethod = formElement.attributes['method'];
 
         final Map<String, String> formData = {};
-        Logger().i('Going to authfields');
         for (var entry in authFields.entries) {
           final element = formElement.querySelector('#${entry.key}');
           final name = element.attributes['name'];
@@ -104,8 +103,6 @@ class FederatedHttpClient extends http.BaseClient {
         for (var element in formElements) {
           final name = element.attributes['name'];
           final value = element.attributes['value'] ?? '';
-          Logger().i('NAME === ' + name);
-          Logger().i('VALUE === ' + value);
           formData[name] = value;
         }
         formData['j_username'] = _username;
@@ -140,7 +137,6 @@ class FederatedHttpClient extends http.BaseClient {
         document = html.parse(loginResponse.body);
         lastResponse = loginResponse;
         title = document.querySelector('head > title')?.text;
-        Logger().i('TITLE after login = ' + loginResponse.body);
         if (title == 'Web Login Service') {
           throw ArgumentError('The provided username and password are invalid');
         }
@@ -149,14 +145,11 @@ class FederatedHttpClient extends http.BaseClient {
       if (title == 'Information Release') {
         throw StateError('An information release was requested');
       }
-      Logger().i('Before title = ' + lastResponse.body);
       if (title != null) {
-        Logger().i('Title = ' + title);
         if (!title.contains('Web Login Service')) {
           break;
         }
       }
-      Logger().i('document before form = ' + document.body.innerHtml);
 
       final formElement = document.querySelector('form');
 
@@ -188,7 +181,6 @@ class FederatedHttpClient extends http.BaseClient {
             (await _getUrlWithRedirects(finalRequest.url.resolve(location)))
                 .last;
       }
-      Logger().i('FED BODY after cookies' + finalResponse.body);
 
       if (finalResponse.statusCode != 200) {
         throw StateError('Something went wrong');
@@ -197,11 +189,9 @@ class FederatedHttpClient extends http.BaseClient {
       document = html.parse(lastResponse.body);
       title = document.querySelector('title').text;
 
-      Logger().i('Title before ending while = ' + title);
       if (!title.contains('Web Login Service')) continue;
     } while (title != 'Web Login Service');
 
-    Logger().i('lastresponse cookies = ' + lastResponse.headers.values.first);
   }
 
   @override
@@ -231,7 +221,6 @@ class FederatedHttpClient extends http.BaseClient {
           'https://moodle.up.pt//auth/shibboleth/index.php') {
         //It's this cookie
         shibindexsFound += 1;
-        Logger().i('Shibbi = ' + shibindexsFound.toString());
         if (shibindexsFound == 2) {
           _gotCorrectMoodleSession = true;
         }
@@ -253,7 +242,6 @@ class FederatedHttpClient extends http.BaseClient {
         cookiesStr += cookie.name + "=" + cookie.value + ";";
       }
 
-      Logger().i('FED CLIENT COOKIES ' + cookiesStr);
       await cookies.saveFromResponse(request.url, parsedCookies);
     }
 
@@ -268,18 +256,27 @@ class FederatedHttpClient extends http.BaseClient {
     Logger().i('Cookiess = ' + cookiesStr);
   }
 
-  Future<http.Response> request(String url) async{
+  Future<http.Response> request(String url,
+      {
+        String body = null,
+        String method = 'GET',
+        String contentType = 'text/html'
+      }) async{
 
 
 
     //final loginRequest =
     //     http.Request('GET', Uri.parse('https://eotkqufho5xnoq3.m.pipedream.net'));
-    final loginRequest =
-      http.Request('GET', Uri.parse(url ));
-    loginRequest.followRedirects = false;
-    http.Response loginResponse =
-      await http.Response.fromStream(await send(loginRequest, bloat:false));
+    final request =
+      http.Request(method, Uri.parse(url ));
+    request.followRedirects = false;
+    if(body != null){
+      request.body = body;
+      request.headers['Content-Type'] = contentType;
+    }
+    http.Response response =
+      await http.Response.fromStream(await send(request, bloat:false));
 
-    return loginResponse;
+    return response;
   }
 }

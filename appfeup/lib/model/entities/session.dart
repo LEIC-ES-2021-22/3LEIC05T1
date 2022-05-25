@@ -12,7 +12,6 @@ class Session {
   String cookies;
   String studentNumber;
   String moodleSessionKey;
-  String sigarraWebCookies = null;
   Future loginRequest;
 
   Session(

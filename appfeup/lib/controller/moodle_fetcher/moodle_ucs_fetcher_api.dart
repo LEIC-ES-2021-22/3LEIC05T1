@@ -35,10 +35,10 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
       }
     };
 
-
+    String bodyStr = '[' + json.encode(body) + ']';
 
     final Response response =
-      await NetworkRouter.federatedPost(baseUrl, body);
+      await NetworkRouter.federatedPost(baseUrl, bodyStr, session);
 
 
     return getUcsFromResponse(response);
@@ -47,15 +47,19 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
 
   Future<List<int>> getUcsFromResponse (Response response) async{
     final json = jsonDecode(response.body)[0];
-    print('response json = ' + response.body);
-    final responseJson = json['response'];
-    if(responseJson['error'].toBoolean()){
+    print('response json = ' + jsonEncode(json));
+
+    if(json['error'] == 'true'){
       //Throw error
     } else {
-      final List<dynamic> courses = responseJson['data']['courses'];
-      return courses.map(
-              (course) => int.parse(course['id'])
+      final List<dynamic> courses = json['data']['courses'];
+      for(dynamic course in courses){
+        Logger().i('courseid =' + course['id'].toString());
+      }
+      final List<int> courseIds =  courses.map(
+              (course) =>  course['id'] as int
       ).toList();
+      return courseIds;
 
     }
   }

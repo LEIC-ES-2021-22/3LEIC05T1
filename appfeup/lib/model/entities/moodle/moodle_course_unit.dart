@@ -5,7 +5,7 @@ class MoodleCourseUnit{
   final String shortName;
   final String fullName;
 
-  final List<Section> sections;
+  List<Section> sections;
 
   MoodleCourseUnit(this.id, {this.shortName, this.fullName, this.sections});
 

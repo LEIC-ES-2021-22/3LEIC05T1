@@ -55,7 +55,6 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
     } else {
       final List<dynamic> courses = json['data']['courses'];
       for(dynamic course in courses){
-        Logger().i('courseid =' + course['id'].toString());
       }
       return courses.map(
             (course) =>  MoodleCourseUnit.fromMap(course)).toList();

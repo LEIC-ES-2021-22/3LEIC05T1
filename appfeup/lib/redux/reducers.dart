@@ -1,5 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:uni/model/app_state.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 
 import 'actions.dart';
 
@@ -64,6 +65,8 @@ AppState appReducers(AppState state, dynamic action) {
     return setUserFaculties(state, action);
   } else if(action is SetRestaurantsAction){
     return setRestaurantsAction(state, action);
+  } else if(action is SetMoodleCourseUnitsAction){
+    return setMoodleCourseUnitsAction(state, action);
   }
   return state;
 }
@@ -87,6 +90,12 @@ AppState setRestaurantsAction(AppState state, SetRestaurantsAction action) {
   Logger().i('setting restaurants: ' + action.restaurants.length.toString());
   return state.cloneAndUpdateValue('restaurants', action.restaurants);
 }
+
+AppState setMoodleCourseUnitsAction(AppState state, SetMoodleCourseUnitsAction action) {
+  Logger().i('setting moodle course units: ' + action.courseUnits.length.toString());
+  return state.cloneAndUpdateValue('moodleCourseUnitsMap', action.courseUnits);
+}
+
 
 AppState setExamsStatus(AppState state, SetExamsStatusAction action) {
   Logger().i('setting exams status: ' + action.status.toString());

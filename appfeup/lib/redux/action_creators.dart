@@ -20,6 +20,8 @@ import 'package:uni/controller/local_storage/moodle/course_sections_database.dar
 import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher_html.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/controller/networking/network_router.dart'
     show NetworkRouter;
 import 'package:uni/controller/parsers/parser_courses.dart';
@@ -35,6 +37,7 @@ import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/entities/lecture.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/moodle/section.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/restaurant.dart';
@@ -126,9 +129,6 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
             store.dispatch(SaveUcsAction(res));
             final CourseUnitsDatabase db = CourseUnitsDatabase();
             db.saveCourseUnits(res);
-            for(CourseUnit unit in res){
-              getMoodleContentsFromFetcher(unit);
-            }
           });
 
 
@@ -323,21 +323,40 @@ ThunkAction<AppState> getRestaurantsFromFetcher(Completer<Null> action){
   };
 }
 
-Future<List<Section>> getMoodleContentsFromFetcher(CourseUnit courseUnit) async{
-    Logger().i('Start moodle contents fetcher');
-    MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
-    List<Section> sections = await fetcher.getSections(courseUnit);
+ThunkAction<AppState>
+getAllMoodleContentsFromFetcher(Completer<Null> action){
+  return (Store<AppState> store) async{
+    try{
+      Logger().i('Start moodle contents fetcher');
+      final MoodleUcsFetcher courseUnitsFetcher = MoodleUcsFetcherAPI();
+      List<MoodleCourseUnit> moodleCourseUnits =
+        await courseUnitsFetcher.getUcs(store.state.content['session']);
 
-    CourseSectionsDatabase db = CourseSectionsDatabase();
+      final MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
+      Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
+      final CourseSectionsDatabase db = CourseSectionsDatabase();
+      for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
 
-    db.saveSections(sections, courseId: courseUnit.moodleId);
+        final List<Section> sections = await fetcher.getSections(courseUnit);
 
-    for(Section section in sections){
-      db.saveModules(section.activities, section.id);
+        db.saveSections(sections, courseId: courseUnit.id);
+
+        for (Section section in sections) {
+          db.saveActivities(section.activities, section.id);
+        }
+        courseUnit.sections = sections;
+        moodleCourseUnitsMap[courseUnit.id] = courseUnit;
+      }
+
+      store.dispatch(SetMoodleCourseUnitsAction(moodleCourseUnitsMap));
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
+    } catch(e, s){
+      Logger().e('Failed to get moodle contents: ${e.toString()} ${s}');
+
+      store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
     }
-    
-    return sections;
-
+    action.complete();
+  };
 }
 
 Future<List<Lecture>> getLecturesFromFetcherOrElse(

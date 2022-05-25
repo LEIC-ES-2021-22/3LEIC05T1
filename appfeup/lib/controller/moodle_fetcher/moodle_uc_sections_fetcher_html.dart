@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/moodle/section.dart';
 import 'package:uni/model/entities/session.dart';
 import 'package:uni/model/utils/moodle_activity_type.dart';
@@ -14,9 +15,9 @@ import 'package:uni/model/utils/moodle_activity_type.dart';
 import '../networking/network_router.dart';
 
 class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
-  Future<List<Section>> getSections(CourseUnit uc) async{
+  Future<List<Section>> getSections(MoodleCourseUnit uc) async{
     final String url = NetworkRouter.getMoodleUrl()
-        + '/course/view.php?id=' + uc.moodleId.toString();
+        + '/course/view.php?id=' + uc.id.toString();
 
     final Future<Response> response =
       NetworkRouter.federatedGet(url);
@@ -24,7 +25,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
   }
 
 
-  Future<List<Section>> _getSectionsFromResponse(Response response, CourseUnit courseUnit) async{
+  Future<List<Section>> _getSectionsFromResponse(Response response, MoodleCourseUnit courseUnit) async{
     final document = parse(response.body);
     final List<Element> sections =
       document.querySelectorAll('.topics > .section');
@@ -44,7 +45,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
           title,
           summary,
           activities: activities,
-          courseUnitId: courseUnit.moodleId);
+          courseUnitId: courseUnit.id);
     }).toList();
 
   }

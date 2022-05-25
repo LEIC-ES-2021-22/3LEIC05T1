@@ -43,11 +43,11 @@ class CourseSectionsDatabase extends AppDatabase{
         batch.commit(noResult: true);
     }
 
-    Future<void> saveModules(List<MoodleActivity> modules, int sectionId) async{
+    Future<void> saveActivities(List<MoodleActivity> activities, int sectionId) async{
         final Database db = await getDatabase();
         final Batch batch = db.batch();
 
-        for(MoodleActivity module in modules){
+        for(MoodleActivity module in activities){
             batch.insert('section_modules', module.toMap(sectionId));
         }
         batch.commit(noResult: true);

@@ -38,7 +38,7 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
 
 
     final Response response =
-      await NetworkRouter.postWithCookies(baseUrl, session, body);
+      await NetworkRouter.federatedPost(baseUrl, body);
 
 
     return getUcsFromResponse(response);

@@ -8,7 +8,6 @@ import 'package:uni/controller/networking/network_router.dart';
 final cookieRegex = RegExp(r'(?<=^|\S,).*?(?=$|,\S)');
 
 class FederatedHttpClient extends http.BaseClient {
-
   final _client = http.Client();
   final cookies = CookieJar();
 
@@ -17,6 +16,7 @@ class FederatedHttpClient extends http.BaseClient {
 
   bool _gotCorrectMoodleSession = false;
   int shibindexsFound = 0;
+
   FederatedHttpClient(this._username, this._password);
 
   Future<List<http.Response>> _getUrlWithRedirects(Uri url) async {
@@ -58,7 +58,7 @@ class FederatedHttpClient extends http.BaseClient {
       // Service Provider (eg. Moodle) to the Identity Provider
       // (eg. Shibboleth aka AAI)
       throw ArgumentError(
-        'The provided url is not a valid authentication endpoint');
+          'The provided url is not a valid authentication endpoint');
     }
 
     var lastResponse = responses.last;
@@ -76,9 +76,7 @@ class FederatedHttpClient extends http.BaseClient {
     String title;
     do {
       var document = html.parse(lastResponse.body);
-      var title = document
-          .querySelector('head > title')
-          ?.text;
+      var title = document.querySelector('head > title')?.text;
       Logger().i('TITLE = ' + title);
       if (title == 'Web Login Service') {
         final authFields = {
@@ -100,28 +98,26 @@ class FederatedHttpClient extends http.BaseClient {
 
           formData[name] = entry.value;
         }
-        final formElements = formElement.querySelectorAll('input[type=\"hidden\"]');
+        final formElements =
+            formElement.querySelectorAll('input[type=\"hidden\"]');
 
         for (var element in formElements) {
           final name = element.attributes['name'];
           final value = element.attributes['value'] ?? '';
           Logger().i('NAME === ' + name);
-          Logger().i('VALUE === ' + value );
+          Logger().i('VALUE === ' + value);
           formData[name] = value;
         }
         formData['j_username'] = _username;
         formData['j_password'] = _password;
 
-        final loginRequest = http.Request(
-            formMethod,
-            lastResponseLocation.resolve(formAction)
-        );
+        final loginRequest =
+            http.Request(formMethod, lastResponseLocation.resolve(formAction));
 
         loginRequest.bodyFields = formData;
 
-        var loginResponse = await http.Response.fromStream(
-            await send(loginRequest)
-        );
+        var loginResponse =
+            await http.Response.fromStream(await send(loginRequest));
 
         lastResponse = loginResponse;
         lastResponseLocation = loginRequest.url;
@@ -134,9 +130,8 @@ class FederatedHttpClient extends http.BaseClient {
         // See: https://github.com/dart-lang/http/issues/157#issuecomment-417639249
         if (loginResponse.statusCode == 302) {
           final location = loginResponse.headers['location'];
-          final loginResponses = await _getUrlWithRedirects(
-              loginRequest.url.resolve(location)
-          );
+          final loginResponses =
+              await _getUrlWithRedirects(loginRequest.url.resolve(location));
 
           lastResponse = loginResponse = loginResponses.last;
           lastResponseLocation = lastResponse.request.url;
@@ -144,21 +139,18 @@ class FederatedHttpClient extends http.BaseClient {
 
         document = html.parse(loginResponse.body);
         lastResponse = loginResponse;
-        title = document
-            .querySelector('head > title')
-            ?.text;
+        title = document.querySelector('head > title')?.text;
         Logger().i('TITLE after login = ' + loginResponse.body);
         if (title == 'Web Login Service') {
           throw ArgumentError('The provided username and password are invalid');
         }
-
       }
 
       if (title == 'Information Release') {
         throw StateError('An information release was requested');
       }
       Logger().i('Before title = ' + lastResponse.body);
-      if(title != null) {
+      if (title != null) {
         Logger().i('Title = ' + title);
         if (!title.contains('Web Login Service')) {
           break;
@@ -171,8 +163,8 @@ class FederatedHttpClient extends http.BaseClient {
       final formAction = formElement.attributes['action'];
       final formMethod = formElement.attributes['method'];
 
-      final formElements = formElement.querySelectorAll(
-          'input[type=\"hidden\"]');
+      final formElements =
+          formElement.querySelectorAll('input[type=\"hidden\"]');
 
       final Map<String, String> formData = {};
       for (var element in formElements) {
@@ -183,21 +175,18 @@ class FederatedHttpClient extends http.BaseClient {
       formData['j_username'] = _username;
       formData['j_password'] = _password;
 
-      final finalRequest = http.Request(
-          formMethod,
-          lastResponseLocation.resolve(formAction)
-      );
+      final finalRequest =
+          http.Request(formMethod, lastResponseLocation.resolve(formAction));
       finalRequest.bodyFields = formData;
 
-      var finalResponse = await http.Response.fromStream(
-          await send(finalRequest)
-      );
+      var finalResponse =
+          await http.Response.fromStream(await send(finalRequest));
 
       if (finalResponse.statusCode == 302) {
         final location = finalResponse.headers['location'];
-        finalResponse = (await _getUrlWithRedirects(
-            finalRequest.url.resolve(location)
-        )).last;
+        finalResponse =
+            (await _getUrlWithRedirects(finalRequest.url.resolve(location)))
+                .last;
       }
       Logger().i('FED BODY after cookies' + finalResponse.body);
 
@@ -209,62 +198,88 @@ class FederatedHttpClient extends http.BaseClient {
       title = document.querySelector('title').text;
 
       Logger().i('Title before ending while = ' + title);
-      if(!title.contains('Web Login Service')) continue;
-    } while(title != 'Web Login Service');
+      if (!title.contains('Web Login Service')) continue;
+    } while (title != 'Web Login Service');
 
     Logger().i('lastresponse cookies = ' + lastResponse.headers.values.first);
   }
 
-
-  void printcookies(headers){
-
-  }
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    final sentCookies = await cookies.loadForRequest(request.url);
+  Future<http.StreamedResponse> send(http.BaseRequest request, {bloat = false}) async {
+
+    final sentCookies = await cookies.loadForRequest(bloat ? Uri.parse('https://moodle.up.pt/my') : request.url);
 
     if (sentCookies.isNotEmpty) {
-      final cookieHeader = sentCookies
-        .map((e) => '${e.name}=${e.value}')
-        .join('; ');
-
-      request.headers['cookie'] = cookieHeader;
+      final cookieHeader =
+          sentCookies.map((e) => '${e.name}=${e.value}').join('; ') + ';';
+      print('cookieHeader = ' + cookieHeader);
+      printCookies(sentCookies);
+      request.headers['Cookie'] = cookieHeader;
     }
 
     final response = await _client.send(request);
 
     final receivedCookies = response.headers['set-cookie'];
 
-
     if (receivedCookies != null) {
-      if(_gotCorrectMoodleSession){
-        if(receivedCookies.contains('MoodleSession')){
+      if (_gotCorrectMoodleSession && false) {
+        if (receivedCookies.contains('MoodleSession')) {
           return response;
         }
       }
-      if(request.url.toString() == 'https://moodle.up.pt//auth/shibboleth/index.php'){
+      if (request.url.toString() ==
+          'https://moodle.up.pt//auth/shibboleth/index.php') {
         //It's this cookie
-        shibindexsFound+=1;
-        if(shibindexsFound == 2){
+        shibindexsFound += 1;
+        Logger().i('Shibbi = ' + shibindexsFound.toString());
+        if (shibindexsFound == 2) {
           _gotCorrectMoodleSession = true;
         }
       }
-      Logger().i('Url = ' + request.url.toString() + '\nReceived cookies = ' + receivedCookies);
-      final parsedCookies = cookieRegex.allMatches(receivedCookies)
-        .map((e) => e.group(0))
-        .where((element) => element != null)
-        .cast<String>()
-        .map((e) => Cookie.fromSetCookieValue(e))
-        .toList();
+      Logger().i('Url = ' +
+          request.url.toString() +
+          '\nReceived cookies = ' +
+          receivedCookies + '\n'
+          + (response.statusCode >= 302 ? response.headers['location'] : 'no location'));
+      final parsedCookies = cookieRegex
+          .allMatches(receivedCookies)
+          .map((e) => e.group(0))
+          .where((element) => element != null)
+          .cast<String>()
+          .map((e) => Cookie.fromSetCookieValue(e))
+          .toList();
       String cookiesStr = '';
-      for(Cookie cookie in parsedCookies){
+      for (Cookie cookie in parsedCookies) {
         cookiesStr += cookie.name + "=" + cookie.value + ";";
       }
 
       Logger().i('FED CLIENT COOKIES ' + cookiesStr);
-        await cookies.saveFromResponse(request.url, parsedCookies);
+      await cookies.saveFromResponse(request.url, parsedCookies);
     }
 
     return response;
+  }
+
+  void printCookies(List<Cookie> cookies){
+    String cookiesStr = '';
+    for(Cookie cookie in cookies){
+      cookiesStr += cookie.name + '=' + cookie.value + ';';
+    }
+    Logger().i('Cookiess = ' + cookiesStr);
+  }
+
+  Future<http.Response> request(String url) async{
+
+
+
+    //final loginRequest =
+    //     http.Request('GET', Uri.parse('https://eotkqufho5xnoq3.m.pipedream.net'));
+    final loginRequest =
+      http.Request('GET', Uri.parse(url ));
+    loginRequest.followRedirects = false;
+    http.Response loginResponse =
+      await http.Response.fromStream(await send(loginRequest, bloat:false));
+
+    return loginResponse;
   }
 }

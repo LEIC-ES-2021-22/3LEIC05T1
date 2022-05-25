@@ -114,7 +114,21 @@ class NetworkRouter {
     await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
     await fedClient.login(url);
 
-    http.Response res = await fedClient.get(Uri.parse(NetworkRouter.getMoodleUrl() + '/my'));
+
+    //Uri url = Uri.parse(NetworkRouter.getMoodleUrl() + '/my');
+    /*
+    List<Cookie> cookies = await fedClient.cookies.loadForRequest(uri);
+    String cookiesStr = '';
+    for(Cookie cookie in cookies){
+      cookiesStr += cookie.name + '=' + cookie.value + ';';
+      Logger().i('BBB ' + cookie.name + ' ' + cookie.value);
+    }
+    */
+
+
+
+    http.Response res = await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
+    Logger().i('Final response redirect = ' + res.isRedirect.toString());
     Logger().i('Final response = ' + res.body);
 
 

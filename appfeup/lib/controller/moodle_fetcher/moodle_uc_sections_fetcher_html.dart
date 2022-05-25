@@ -29,7 +29,6 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher{
     final List<Element> sections =
       document.querySelectorAll('.topics > .section');
     return sections.map((sectionElem){
-      Logger().i('inside sections map');
       //Read section info
       String sectionId = sectionElem.attributes['aria-labelledby'].split('-')[1];
       final Element content = sectionElem.querySelector('.content');

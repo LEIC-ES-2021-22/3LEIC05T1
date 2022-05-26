@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
@@ -20,7 +19,8 @@ import 'package:uni/model/entities/trip.dart';
 import 'package:http/http.dart' as http;
 import 'package:query_params/query_params.dart';
 import 'package:synchronized/synchronized.dart';
-extension UriString on String{
+
+extension UriString on String {
   /// Converts a [String] to an [Uri].
   Uri toUri() => Uri.parse(this);
 }
@@ -35,7 +35,6 @@ class NetworkRouter {
   static Lock loginLock = Lock();
 
   static Function onReloginFail = () {};
-
 
   /// Creates an authenticated [Session] on the given [faculty] with the
   /// given username [user] and password [pass].
@@ -52,18 +51,18 @@ class NetworkRouter {
       session.persistentSession = persistentSession;
 
       try {
-        fedClient = FederatedHttpClient('up201906401@fe.up.pt', pass);
-      } catch(e){
+        fedClient = FederatedHttpClient(
+            'up' + session.studentNumber + '@fe.up.pt', pass);
+      } catch (e) {
         Logger().i('FED não tem cookie ' + e.toString());
       }
       Logger().i('Login successful');
-      //await loginSigarraWeb(session, user, pass, faculty);
+
       return session;
     } else {
       Logger().e('Login failed');
       return Session(authenticated: false);
     }
-
   }
 
   /// Determines if a re-login with the [session] is possible.
@@ -86,7 +85,6 @@ class NetworkRouter {
   /// Re-authenticates the user [session].
   static Future<bool> loginFromSession(Session session) async {
     Logger().i('Trying to login...');
-    print("login from session...");
     final String url =
         NetworkRouter.getBaseUrl(session.faculty) + 'mob_val_geral.autentica';
     final http.Response response = await http.post(url.toUri(), body: {
@@ -109,72 +107,53 @@ class NetworkRouter {
   }
 
   static Future<bool> loginMoodle(Session session) async {
-
     ///auth/shibboleth/index.php
-    String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
+    final String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
     await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
     await fedClient.login(url);
 
+    final http.Response response =
+        await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
 
-    //Uri url = Uri.parse(NetworkRouter.getMoodleUrl() + '/my');
-    /*
-    List<Cookie> cookies = await fedClient.cookies.loadForRequest(uri);
-    String cookiesStr = '';
-    for(Cookie cookie in cookies){
-      cookiesStr += cookie.name + '=' + cookie.value + ';';
-      Logger().i('BBB ' + cookie.name + ' ' + cookie.value);
-    }
-    */
+    final document = parse(response.body);
+    final List<dynamic> scripts = document.querySelectorAll('script');
+    String sesskey = null;
+    for (dynamic script in scripts) {
+      final String scriptStr = script.innerHtml;
 
-
-
-    http.Response response = await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
-    //Logger().i('Final response redirect = ' + res.isRedirect.toString());
-    //Logger().i('Final response = ' + res.body);
-
-
-
-      final  document = parse(response.body);
-      Logger().i('Moodle page body = ' + response.body);
-      final  List<dynamic> scripts = document.querySelectorAll('script');
-      String sesskey = null;
-      for(dynamic script in scripts) {
-        final String scriptStr = script.innerHtml;
-
-        for (String s in scriptStr.split(';')) {
-          if (s.contains('M.cfg')) {
-            s = s.replaceFirst('M.cfg = ', '');
-            final mcfg = json.decode(s);
-            sesskey = mcfg['sesskey'];
-            break;
-          }
-        }
-        if(sesskey != null){
+      for (String s in scriptStr.split(';')) {
+        if (s.contains('M.cfg')) {
+          s = s.replaceFirst('M.cfg = ', '');
+          final mcfg = json.decode(s);
+          sesskey = mcfg['sesskey'];
           break;
         }
       }
-      Logger().i('Setting session key ' + sesskey);
-      session.moodleSessionKey = sesskey;
+      if (sesskey != null) {
+        break;
+      }
+    }
+    Logger().i('Setting session key ' + sesskey);
 
+    if (sesskey == null) {
+      Logger().e('Moodle login SessKey is null');
+      return false;
+    }
 
+    session.moodleSessionKey = sesskey;
+    return true;
   }
 
-  static Future<http.Response>
-    federatedPost(String url, String body, Session session) async{
-
+  static Future<http.Response> federatedPost(
+      String url, String body, Session session) async {
     final http.Response response = await fedClient.request(url,
-        body:body,
-        method:'POST',
-        contentType: 'application/json');
-    Logger().i('Response from ' + url + ':\n' + response.body);
+        body: body, method: 'POST', contentType: 'application/json');
     return response;
   }
 
-  static Future<http.Response> federatedGet(String url) async{
-    final http.Response response = await fedClient.request(url,
-        method:'get',
-        contentType: 'text/html');
-    //Logger().i('Response from ' + url + ':\n' + response.body);
+  static Future<http.Response> federatedGet(String url) async {
+    final http.Response response =
+        await fedClient.request(url, method: 'get', contentType: 'text/html');
     return response;
   }
 
@@ -182,8 +161,6 @@ class NetworkRouter {
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
     final String cookies = headers['set-cookie'];
-    print('Cookies! = ' + cookies);
-    print('headers = ' + headers.toString());
     if (cookies != null) {
       final List<String> rawCookies = cookies.split(',');
       for (var c in rawCookies) {
@@ -218,41 +195,37 @@ class NetworkRouter {
 
       final MoodleUcsFetcher moodleUcsFetcher = MoodleUcsFetcherAPI();
       await NetworkRouter.loginMoodle(session);
-      final List<MoodleCourseUnit> ucsWithMoodle = await moodleUcsFetcher.getUcs(session);
+      final List<MoodleCourseUnit> ucsWithMoodle =
+          await moodleUcsFetcher.getUcs(session);
 
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
-          Logger().i('uciddd = ' + uc['id'].toString());
           bool hasMoodle = false;
-          for(MoodleCourseUnit courseUnit in ucsWithMoodle){
-            if (uc['ucurr_nome'] == courseUnit.fullName){
+          for (MoodleCourseUnit courseUnit in ucsWithMoodle) {
+            if (uc['ucurr_nome'] == courseUnit.fullName) {
               hasMoodle = true;
               ucs.add(CourseUnit.fromJson(uc,
-                  hasMoodle : hasMoodle,
-                  moodleId: courseUnit.id
-              ));
+                  hasMoodle: hasMoodle, moodleId: courseUnit.id));
               break;
             }
           }
-          if(!hasMoodle) {
+          if (!hasMoodle) {
             ucs.add(CourseUnit.fromJson(uc, hasMoodle: hasMoodle));
           }
         }
       }
-      Logger().i('Ucs2 =' + ucs.length.toString());
       return ucs;
     }
     return <CourseUnit>[];
-
   }
 
   /// Makes an authenticated GET request with the given [session] to the
   /// resource located at [url] with the given [query] parameters.
   static Future<http.Response> getWithCookies(
       String baseUrl, Map<String, String> query, Session session,
-    {cookies = null}) async {
-    if(cookies == null){
+      {cookies = null}) async {
+    if (cookies == null) {
       cookies = session.cookies;
     }
     final loginSuccessful = await session.loginRequest;
@@ -289,8 +262,8 @@ class NetworkRouter {
     }
   }
 
-  static Future<http.Response> postWithCookies(String url, Session session,
-      Map<String, dynamic> jsonBody) async{
+  static Future<http.Response> postWithCookies(
+      String url, Session session, Map<String, dynamic> jsonBody) async {
     final loginSuccessful = await session.loginRequest;
     if (loginSuccessful is bool && !loginSuccessful) {
       return Future.error('Login failed');
@@ -318,7 +291,6 @@ class NetworkRouter {
     } else {
       return Future.error('HTTP Error ${response.statusCode}');
     }
-
   }
 
   /// Retrieves the name and code of the stops with code [stopCode].
@@ -373,7 +345,7 @@ class NetworkRouter {
     return 'https://sigarra.up.pt/$faculty/pt/';
   }
 
-  static String getMoodleUrl(){
+  static String getMoodleUrl() {
     return 'https://moodle.up.pt/';
   }
 

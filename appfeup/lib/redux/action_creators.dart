@@ -40,7 +40,7 @@ import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/entities/lecture.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
-import 'package:uni/model/entities/moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/restaurant.dart';
 import 'package:uni/model/entities/session.dart';

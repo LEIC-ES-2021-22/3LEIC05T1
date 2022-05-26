@@ -1,6 +1,5 @@
 import 'package:logger/logger.dart';
 import 'package:uni/model/app_state.dart';
-import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 
 import 'actions.dart';
 

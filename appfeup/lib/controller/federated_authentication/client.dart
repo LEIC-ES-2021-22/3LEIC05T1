@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:html/parser.dart' as html;
 import 'package:http/http.dart' as http;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:logger/logger.dart';
-import 'package:uni/controller/networking/network_router.dart';
 
 final cookieRegex = RegExp(r'(?<=^|\S,).*?(?=$|,\S)');
 
@@ -191,13 +189,13 @@ class FederatedHttpClient extends http.BaseClient {
 
       if (!title.contains('Web Login Service')) continue;
     } while (title != 'Web Login Service');
-
   }
 
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request, {bloat = false}) async {
-
-    final sentCookies = await cookies.loadForRequest(bloat ? Uri.parse('https://moodle.up.pt/my') : request.url);
+  Future<http.StreamedResponse> send(http.BaseRequest request,
+      {bloat = false}) async {
+    final sentCookies = await cookies.loadForRequest(
+        bloat ? Uri.parse('https://moodle.up.pt/my') : request.url);
 
     if (sentCookies.isNotEmpty) {
       final cookieHeader =
@@ -223,11 +221,7 @@ class FederatedHttpClient extends http.BaseClient {
           _gotCorrectMoodleSession = true;
         }
       }
-      Logger().i('Url = ' +
-          request.url.toString() +
-          '\nReceived cookies = ' +
-          receivedCookies + '\n'
-          + (response.statusCode >= 302 ? response.headers['location'] : 'no location'));
+
       final parsedCookies = cookieRegex
           .allMatches(receivedCookies)
           .map((e) => e.group(0))
@@ -235,10 +229,6 @@ class FederatedHttpClient extends http.BaseClient {
           .cast<String>()
           .map((e) => Cookie.fromSetCookieValue(e))
           .toList();
-      String cookiesStr = '';
-      for (Cookie cookie in parsedCookies) {
-        cookiesStr += cookie.name + "=" + cookie.value + ";";
-      }
 
       await cookies.saveFromResponse(request.url, parsedCookies);
     }
@@ -246,34 +236,28 @@ class FederatedHttpClient extends http.BaseClient {
     return response;
   }
 
-  void printCookies(List<Cookie> cookies){
+  void printCookies(List<Cookie> cookies) {
     String cookiesStr = '';
-    for(Cookie cookie in cookies){
+    for (Cookie cookie in cookies) {
       cookiesStr += cookie.name + '=' + cookie.value + ';';
     }
-    Logger().i('Cookiess = ' + cookiesStr);
+    Logger().i('====> printCookies = ' + cookiesStr);
   }
 
   Future<http.Response> request(String url,
-      {
-        String body = null,
-        String method = 'GET',
-        String contentType = 'text/html'
-      }) async{
-
-
-
+      {String body = null,
+      String method = 'GET',
+      String contentType = 'text/html'}) async {
     //final loginRequest =
     //     http.Request('GET', Uri.parse('https://eotkqufho5xnoq3.m.pipedream.net'));
-    final request =
-      http.Request(method, Uri.parse(url ));
+    final request = http.Request(method, Uri.parse(url));
     request.followRedirects = false;
-    if(body != null){
+    if (body != null) {
       request.body = body;
       request.headers['Content-Type'] = contentType;
     }
-    http.Response response =
-      await http.Response.fromStream(await send(request, bloat:false));
+    final http.Response response =
+        await http.Response.fromStream(await send(request, bloat: false));
 
     return response;
   }

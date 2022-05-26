@@ -1,4 +1,4 @@
-import 'package:uni/model/entities/moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 
 class MoodleCourseUnit{
   final int id;

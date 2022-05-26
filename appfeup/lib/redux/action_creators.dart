@@ -222,6 +222,7 @@ ThunkAction<AppState> updateStateBasedOnLocalUserBusStops() {
 ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
   Logger().i('updateStateBasedOnLocalMoodleContents');
   return (Store<AppState> store) async{
+    store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
     final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
     final List<MoodleCourseUnit> list = await db.getCourseUnits();
 
@@ -231,6 +232,12 @@ ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
     }
 
     store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
+    if(list.isEmpty){
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.failed)));
+    } else {
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
+    }
+
     store.dispatch(getAllMoodleContentsFromFetcher(Completer()));
   };
 }
@@ -357,6 +364,7 @@ ThunkAction<AppState>
 getAllMoodleContentsFromFetcher(Completer<Null> action){
   return (Store<AppState> store) async{
     try{
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
       Logger().i('Start moodle contents fetcher');
       final MoodleUcsFetcher courseUnitsFetcher = MoodleUcsFetcherAPI();
       List<MoodleCourseUnit> moodleCourseUnits =

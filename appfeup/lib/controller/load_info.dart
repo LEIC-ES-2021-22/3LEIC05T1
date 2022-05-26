@@ -104,6 +104,7 @@ void _getMoodleInfo(Store<AppState> store) async{
 }
 
 void loadLocalUserInfoToState(store) async {
+  Logger().i('Loading localUserInfo');
   store.dispatch(
       UpdateFavoriteCards(await AppSharedPreferences.getFavoriteCards()));
   store.dispatch(SetExamFilter(await AppSharedPreferences.getFilteredExams()));
@@ -113,9 +114,11 @@ void loadLocalUserInfoToState(store) async {
       await AppSharedPreferences.getPersistentUserInfo();
   if (userPersistentInfo.item1 != '' && userPersistentInfo.item2 != '') {
     store.dispatch(updateStateBasedOnLocalProfile());
+    store.dispatch(updateStateBasedOnLocalCourseUnits());
     store.dispatch(updateStateBasedOnLocalUserExams());
     store.dispatch(updateStateBasedOnLocalUserLectures());
     store.dispatch(updateStateBasedOnLocalUserBusStops());
+    store.dispatch(updateStateBasedOnLocalMoodleContents());
     store.dispatch(updateStateBasedOnLocalRefreshTimes());
     store.dispatch(updateStateBasedOnLocalTime());
     store.dispatch(SaveProfileStatusAction(RequestStatus.successful));

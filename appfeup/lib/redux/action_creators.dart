@@ -7,6 +7,7 @@ import 'package:tuple/tuple.dart';
 import 'package:uni/controller/load_info.dart';
 import 'package:uni/controller/load_static/terms_and_conditions.dart';
 import 'package:uni/controller/local_storage/app_bus_stop_database.dart';
+import 'package:uni/controller/local_storage/app_course_units_database.dart';
 
 import 'package:uni/controller/local_storage/app_courses_database.dart';
 import 'package:uni/controller/local_storage/app_exams_database.dart';
@@ -24,6 +25,7 @@ import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/controller/networking/network_router.dart'
     show NetworkRouter;
+import 'package:collection/collection.dart';
 import 'package:uni/controller/parsers/parser_courses.dart';
 import 'package:uni/controller/parsers/parser_exams.dart';
 import 'package:uni/controller/parsers/parser_fees.dart';
@@ -127,8 +129,12 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
           NetworkRouter.getCurrentCourseUnits(store.state.content['session'])
               .then((res) {
             store.dispatch(SaveUcsAction(res));
+            Logger().i('saving to db current ucs');
             final CourseUnitsDatabase db = CourseUnitsDatabase();
             db.saveCourseUnits(res);
+            Logger().i('done saving to db current ucs');
+            final MoodleCourseUnitsDatabase moodleDb = MoodleCourseUnitsDatabase();
+            moodleDb.saveCourseUnits(res);
           });
 
 
@@ -152,6 +158,19 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
     }
 
     action.complete();
+  };
+}
+
+ThunkAction<AppState> updateStateBasedOnLocalCourseUnits() {
+  return (Store<AppState> store) async {
+    Logger().i('updateStateBasedOnLocalCourseUnits');
+    final CourseUnitsDatabase db = CourseUnitsDatabase();
+    final List<CourseUnit> exs = await db.getCourseUnits();
+    for(CourseUnit x in exs){
+      Logger().i('xxx' + x.toString());
+    }
+    Logger().i('courseUnits = ' + exs.length.toString());
+    store.dispatch(SaveUcsAction(exs));
   };
 }
 
@@ -202,6 +221,22 @@ ThunkAction<AppState> updateStateBasedOnLocalUserBusStops() {
 
     store.dispatch(SetBusStopsAction(stops));
     store.dispatch(getUserBusTrips(Completer()));
+  };
+}
+
+ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
+  Logger().i('updateStateBasedOnLocalMoodleContents');
+  return (Store<AppState> store) async{
+    final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
+    final List<MoodleCourseUnit> list = await db.getCourseUnits();
+
+    final Map<int, MoodleCourseUnit> courseUnitsMap = {};
+    for(MoodleCourseUnit mcu in list){
+      courseUnitsMap[mcu.id] = mcu;
+    }
+
+    store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
+    store.dispatch(getAllMoodleContentsFromFetcher(Completer()));
   };
 }
 

@@ -9,7 +9,7 @@ class CourseSectionsDatabase extends AppDatabase{
 
     CourseSectionsDatabase(): super(_TABLENAME + '.db',
     [''' CREATE TABLE COURSE_SECTIONS(
-      id INTEGER,
+      id INTEGER PRIMARY KEY,
       unit_course_id,
       title text,
       summary text
@@ -37,6 +37,7 @@ class CourseSectionsDatabase extends AppDatabase{
     Future<void> saveSections(List<Section> sections, {int courseId = -1}) async{
         final Database db = await getDatabase();
         final Batch batch = db.batch();
+
         for(Section section in sections){
             batch.insert(_TABLENAME, section.toMap(courseId));
         }

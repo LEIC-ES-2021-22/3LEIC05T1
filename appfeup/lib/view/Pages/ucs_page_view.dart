@@ -44,10 +44,18 @@ class UcsList extends StatelessWidget {
   
   List<CurricularUnitCard> createAllUnitCards(){
       final List<CurricularUnitCard> curricularUnitCards = [];
-      for (var courseUnit in ucs) {
-        Logger().i('Create unit cards');
+      Logger().i('ucs.length = ' + ucs.length.toString());
+      Logger().i('moodleCourseUnitsMap.length = ' + moodleCourseUnitsMap.toString());
+      for (CourseUnit courseUnit in ucs) {
+
+        for(MoodleCourseUnit mc in moodleCourseUnitsMap.values){
+          Logger().i('mcc' + mc.toString());
+        }
+        Logger().i('Create unit cards ' + courseUnit.moodleId.toString());
+
+        MoodleCourseUnit moodleCourseUnit = moodleCourseUnitsMap[courseUnit.moodleId];
           curricularUnitCards
-              .add(CurricularUnitCard(courseUnit, moodleCourseUnitsMap[courseUnit.moodleId]));
+              .add(CurricularUnitCard(courseUnit, moodleCourseUnit));
       }
       return curricularUnitCards;
   }

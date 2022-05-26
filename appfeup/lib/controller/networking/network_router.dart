@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
@@ -58,7 +57,7 @@ class NetworkRouter {
         Logger().i('FED não tem cookie ' + e.toString());
       }
       Logger().i('Login successful');
-      //await loginSigarraWeb(session, user, pass, faculty);
+
       return session;
     } else {
       Logger().e('Login failed');
@@ -86,7 +85,6 @@ class NetworkRouter {
   /// Re-authenticates the user [session].
   static Future<bool> loginFromSession(Session session) async {
     Logger().i('Trying to login...');
-    print("login from session...");
     final String url =
         NetworkRouter.getBaseUrl(session.faculty) + 'mob_val_geral.autentica';
     final http.Response response = await http.post(url.toUri(), body: {
@@ -110,27 +108,14 @@ class NetworkRouter {
 
   static Future<bool> loginMoodle(Session session) async {
     ///auth/shibboleth/index.php
-    String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
+    final String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
     await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
     await fedClient.login(url);
 
-    //Uri url = Uri.parse(NetworkRouter.getMoodleUrl() + '/my');
-    /*
-    List<Cookie> cookies = await fedClient.cookies.loadForRequest(uri);
-    String cookiesStr = '';
-    for(Cookie cookie in cookies){
-      cookiesStr += cookie.name + '=' + cookie.value + ';';
-      Logger().i('BBB ' + cookie.name + ' ' + cookie.value);
-    }
-    */
-
-    http.Response response =
+    final http.Response response =
         await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
-    //Logger().i('Final response redirect = ' + res.isRedirect.toString());
-    //Logger().i('Final response = ' + res.body);
 
     final document = parse(response.body);
-    Logger().i('Moodle page body = ' + response.body);
     final List<dynamic> scripts = document.querySelectorAll('script');
     String sesskey = null;
     for (dynamic script in scripts) {
@@ -149,21 +134,26 @@ class NetworkRouter {
       }
     }
     Logger().i('Setting session key ' + sesskey);
+
+    if (sesskey == null) {
+      Logger().e('Moodle login SessKey is null');
+      return false;
+    }
+
     session.moodleSessionKey = sesskey;
+    return true;
   }
 
   static Future<http.Response> federatedPost(
       String url, String body, Session session) async {
     final http.Response response = await fedClient.request(url,
         body: body, method: 'POST', contentType: 'application/json');
-    Logger().i('Response from ' + url + ':\n' + response.body);
     return response;
   }
 
   static Future<http.Response> federatedGet(String url) async {
     final http.Response response =
         await fedClient.request(url, method: 'get', contentType: 'text/html');
-    //Logger().i('Response from ' + url + ':\n' + response.body);
     return response;
   }
 
@@ -171,8 +161,6 @@ class NetworkRouter {
   static String extractCookies(dynamic headers) {
     final List<String> cookieList = <String>[];
     final String cookies = headers['set-cookie'];
-    print('Cookies! = ' + cookies);
-    print('headers = ' + headers.toString());
     if (cookies != null) {
       final List<String> rawCookies = cookies.split(',');
       for (var c in rawCookies) {
@@ -213,7 +201,6 @@ class NetworkRouter {
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
-          Logger().i('uciddd = ' + uc['id'].toString());
           bool hasMoodle = false;
           for (MoodleCourseUnit courseUnit in ucsWithMoodle) {
             if (uc['ucurr_nome'] == courseUnit.fullName) {
@@ -228,7 +215,6 @@ class NetworkRouter {
           }
         }
       }
-      Logger().i('Ucs2 =' + ucs.length.toString());
       return ucs;
     }
     return <CourseUnit>[];

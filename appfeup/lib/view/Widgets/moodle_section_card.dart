@@ -46,7 +46,7 @@ class SectionCard extends StatefulWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ActivityPageView(element)),
+                          builder: (context) => MoodleActivityPageView(element)),
                     );
                   }),
           )

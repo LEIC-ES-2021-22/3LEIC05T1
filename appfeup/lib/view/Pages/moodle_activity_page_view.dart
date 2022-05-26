@@ -6,10 +6,10 @@ import 'package:uni/view/Pages/page_activity_view.dart';
 import 'package:uni/view/Pages/sigarra_course_info_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 
-class ActivityPageView extends StatefulWidget {
+class MoodleActivityPageView extends StatefulWidget {
   final MoodleActivity info;
 
-  ActivityPageView(this.info);
+  MoodleActivityPageView(this.info);
 
   @override
   State<StatefulWidget> createState() {
@@ -18,16 +18,16 @@ class ActivityPageView extends StatefulWidget {
     } else if (this.info is PageActivity) {
       return PageActivityViewState(this.info);
     } else {
-      return ActivityPageViewState(this.info);
+      return MoodleActivityPageViewState(this.info);
     }
   }
 }
 
 /// Manages the 'Personal user page' section.
-class ActivityPageViewState extends UnnamedPageView {
+class MoodleActivityPageViewState extends UnnamedPageView {
   MoodleActivity info;
 
-  ActivityPageViewState(this.info);
+  MoodleActivityPageViewState(this.info);
 
   @override
   Widget getBody(BuildContext context) {

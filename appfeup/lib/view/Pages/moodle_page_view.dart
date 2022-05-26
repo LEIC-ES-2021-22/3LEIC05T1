@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
-import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
-import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 import 'package:uni/view/Widgets/moodle_section_card.dart';
 
@@ -45,32 +43,6 @@ class MoodlePageViewState extends UnnamedPageView {
           )),
     ];
     final List<Section> sections = uc.sections;
-
-    final Map<String, String> content = Map();
-    content['Ocorrência: 2021/2022 - 2S'] =
-        'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
-    content['Língua de trabalho'] = 'Português';
-    content['Objetivos'] =
-        'Familiarizar-se com os métodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
-    content['Melhoria de Classificação'] =
-        'A classificação da componente EF pode ser melhorada na época de recurso.\nRealização de trabalhos alternativos na época seguinte da disciplina.';
-
-    final List<String> pageContent = [
-      'Have a look at these pages:',
-      'https://docs.oracle.com/javase/tutorial/rmi/overview.html',
-      'https://docs.oracle.com/javase/8/docs/technotes/guides/rmi/hello/hello-world.html',
-      'To run the code in Linux based system (see explanation in the link above):',
-      'rmiregistry &',
-      'java -Djava.rmi.server.codebase=file:./ example.hello.Server &',
-      'java example.hello.Client'
-    ];
-
-    /*final List<Section> sections = [
-      Section(1, 'Section 1', 'This the section 1', activities: [
-       SigarraCourseInfo(1, 'UC info', content),
-        PageActivity(2, 'Example RMI', pageContent.join('\n'))
-      ])
-    ];*/
 
     for (Section section in sections) {
       list.add(SectionCard(section));

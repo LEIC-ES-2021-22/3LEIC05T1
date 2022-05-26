@@ -68,7 +68,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         'java example.hello.Client'
       ];
       activities.add(PageActivity(2, 'Example RMI', pageContent.join('\n')));
-      print('Act now' + activities.toString());
+      //print('Act now' + activities.toString());
 
       return Section(int.parse(sectionId), title, summary,
           activities: activities, courseUnitId: courseUnit.id);

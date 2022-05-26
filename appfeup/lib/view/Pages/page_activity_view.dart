@@ -3,7 +3,7 @@ import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 
-class PageActivityView extends ActivityPageView {
+class PageActivityView extends MoodleActivityPageView {
   PageActivity pageInfo;
 
   PageActivityView(PageActivity pageInfo) : super(pageInfo);

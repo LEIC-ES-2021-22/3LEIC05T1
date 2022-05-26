@@ -3,10 +3,10 @@ import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 
-class SigarraCourseInfoPageView extends ActivityPageView {
-  SigarraCourseInfo ucInfo;
+class SigarraCourseInfoPageView extends MoodleActivityPageView {
+  final SigarraCourseInfo ucInfo;
 
-  SigarraCourseInfoPageView(SigarraCourseInfo ucInfo) : super(ucInfo);
+  SigarraCourseInfoPageView(this.ucInfo) : super(ucInfo);
 
   @override
   State<StatefulWidget> createState() =>
@@ -42,7 +42,7 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
   }
 
   List<Widget> createContent(BuildContext context) {
-    List<Widget> widgets = [];
+    final List<Widget> widgets = [];
 
     this.ucInfo.content.forEach((key, value) {
       widgets.add(

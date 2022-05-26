@@ -1,14 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:uni/model/entities/time_utilities.dart';
-import 'package:uni/model/entities/moodle/section.dart';
-import 'package:uni/view/Pages/activity_page_view.dart';
 
-import '../Pages/sigarra_course_info_view.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
+import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 
 class SectionCard extends StatefulWidget {
   final Section section;
+
   SectionCard(this.section, {Key key}) : super(key: key);
 
   @override
@@ -17,31 +15,30 @@ class SectionCard extends StatefulWidget {
   }
 
   Widget buildCardContent(BuildContext context) {
-    return Wrap(children: <Widget>[
-      Divider(color: Colors.grey.shade500),
-      Row(
-          children: <Widget>[
+    return Wrap(
+        children: <Widget>[
+              Divider(color: Colors.grey.shade500),
+              Row(children: <Widget>[
                 Flexible(
                     child: Text(
-                  this.section.description,
+                  this.section.summary,
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.fade,
                 ))
-              ]
-              ) ,
-    ] + createActivities(context)
-    );
+              ]),
+            ] +
+            createActivities(context));
   }
 
   List<Widget> createActivities(BuildContext context) {
-    List<Widget> widgets = [];
-    this.section.activity.forEach((element) {
+    final List<Widget> widgets = [];
+    this.section.activities.forEach((element) {
       widgets.add(Row(
         children: <Widget>[
           RichText(
             text: TextSpan(
-                text: element.getName(),
+                text: element.title,
                 style: TextStyle(
                     color: Colors.black, decoration: TextDecoration.underline),
                 recognizer: TapGestureRecognizer()
@@ -49,7 +46,7 @@ class SectionCard extends StatefulWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ActivityPageView(element)),
+                          builder: (context) => MoodleActivityPageView(element)),
                     );
                   }),
           )
@@ -59,7 +56,7 @@ class SectionCard extends StatefulWidget {
     return widgets;
   }
 
-  String getTitle() => this.section.name;
+  String getTitle() => this.section.title;
 }
 
 class SectionCardState extends State<SectionCard> {

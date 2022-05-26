@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:uni/model/entities/moodle/activities/activity.dart';
-import 'package:uni/model/entities/moodle/activities/page.dart';
-import 'package:uni/view/Pages/activity_page_view.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
+import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
 
-
-class PageActivityView extends ActivityPageView {
+class PageActivityView extends MoodleActivityPageView {
   PageActivity pageInfo;
-  PageActivityView(PageActivity pageInfo):super(pageInfo);
+
+  PageActivityView(PageActivity pageInfo) : super(pageInfo);
+
   @override
   State<StatefulWidget> createState() => PageActivityViewState(this.pageInfo);
 }
@@ -20,12 +20,7 @@ class PageActivityViewState extends UnnamedPageView {
 
   @override
   Widget getBody(BuildContext context) {
-
-    return ListView(
-        children:
-        [createTitle(context)] + createContent(context)
-
-    );
+    return ListView(children: [createTitle(context)] + createContent(context));
   }
 
   @override
@@ -33,27 +28,22 @@ class PageActivityViewState extends UnnamedPageView {
     return Container();
   }
 
-  Widget createTitle(BuildContext context)
-  {
-    return  Flexible(
+  Widget createTitle(BuildContext context) {
+    return Flexible(
         child: Container(
-          child: Text(this.pageInfo.title,
-              style: Theme.of(context)
-                  .textTheme
-                  .headline6
-                  .apply(fontSizeFactor: 1.3)),
-          alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(horizontal: 15),
-          margin: EdgeInsets.only(top: 15, bottom: 10),
-        )
-    );
+      child: Text(this.pageInfo.title,
+          style:
+              Theme.of(context).textTheme.headline6.apply(fontSizeFactor: 1.3)),
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      margin: EdgeInsets.only(top: 15, bottom: 10),
+    ));
   }
 
-
-  List<Widget> createContent(BuildContext context){
+  List<Widget> createContent(BuildContext context) {
     List<Widget> widgets = [];
 
-    this.pageInfo.content.forEach((value) {
+    ((value) {
       widgets.add(
         Flexible(
           child: Container(
@@ -61,21 +51,15 @@ class PageActivityViewState extends UnnamedPageView {
                 style: Theme.of(context)
                     .textTheme
                     .headline6
-                    .apply(fontSizeFactor: 0.8)
-            ),
+                    .apply(fontSizeFactor: 0.8)),
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.symmetric(horizontal: 15),
             margin: EdgeInsets.only(top: 10, bottom: 8),
           ),
         ),
       );
+    })(this.pageInfo.description);
 
-    });
     return widgets;
-
   }
-
-
-
 }
-

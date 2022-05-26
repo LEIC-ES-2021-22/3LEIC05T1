@@ -5,7 +5,7 @@ class MoodleResource extends MoodleActivity {
   final String filePath;
   final String fileURL;
 
-  MoodleResource(int id, String title, MoodleActivityType type,
+  MoodleResource(int id, String title,
       {this.filePath, this.fileURL})
-      : super(id, title, type);
+      : super(id, title, MoodleActivityType.resource.name);
 }

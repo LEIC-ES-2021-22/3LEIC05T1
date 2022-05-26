@@ -5,7 +5,7 @@ class SigarraCourseInfo extends MoodleActivity {
   final Map<String, String> content;
 
   SigarraCourseInfo(int id, String title, Map<String, String> this.content)
-      : super(id, title, MoodleActivityType.sigarracourseinfo);
+      : super(id, title, MoodleActivityType.sigarracourseinfo.name);
 
 
 }

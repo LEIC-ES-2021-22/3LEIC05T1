@@ -5,7 +5,7 @@ import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 
 class SectionCard extends StatefulWidget {
-  final Section section;
+  final MoodleSection section;
 
   SectionCard(this.section, {Key key}) : super(key: key);
 

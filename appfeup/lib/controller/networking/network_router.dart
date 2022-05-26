@@ -54,7 +54,7 @@ class NetworkRouter {
         fedClient = FederatedHttpClient(
             'up' + session.studentNumber + '@fe.up.pt', pass);
       } catch (e) {
-        Logger().i('FED não tem cookie ' + e.toString());
+        Logger().e('Failed federated authentication');
       }
       Logger().i('Login successful');
 
@@ -133,8 +133,6 @@ class NetworkRouter {
         break;
       }
     }
-    Logger().i('Setting session key ' + sesskey);
-
     if (sesskey == null) {
       Logger().e('Moodle login SessKey is null');
       return false;
@@ -167,7 +165,6 @@ class NetworkRouter {
         cookieList.add(Cookie.fromSetCookieValue(c).toString());
       }
     }
-    Logger().i('extracted Cookies ' + cookieList.join(';'));
     return cookieList.join(';');
   }
 

@@ -129,10 +129,8 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
           NetworkRouter.getCurrentCourseUnits(store.state.content['session'])
               .then((res) {
             store.dispatch(SaveUcsAction(res));
-            Logger().i('saving to db current ucs');
             final CourseUnitsDatabase db = CourseUnitsDatabase();
             db.saveCourseUnits(res);
-            Logger().i('done saving to db current ucs');
             final MoodleCourseUnitsDatabase moodleDb = MoodleCourseUnitsDatabase();
             moodleDb.saveCourseUnits(res);
           });
@@ -163,13 +161,10 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
 
 ThunkAction<AppState> updateStateBasedOnLocalCourseUnits() {
   return (Store<AppState> store) async {
-    Logger().i('updateStateBasedOnLocalCourseUnits');
     final CourseUnitsDatabase db = CourseUnitsDatabase();
     final List<CourseUnit> exs = await db.getCourseUnits();
     for(CourseUnit x in exs){
-      Logger().i('xxx' + x.toString());
     }
-    Logger().i('courseUnits = ' + exs.length.toString());
     store.dispatch(SaveUcsAction(exs));
   };
 }

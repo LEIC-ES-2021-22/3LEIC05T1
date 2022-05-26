@@ -1,9 +1,12 @@
 import 'package:flutter/rendering.dart';
+import 'package:logger/logger.dart';
+import 'package:tuple/tuple.dart';
 import 'package:uni/model/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/view/Pages/secondary_page_view.dart';
 import 'package:uni/view/Widgets/curricular_unit_card.dart';
 import 'package:uni/utils/constants.dart' as Constants;
@@ -21,12 +24,13 @@ class UcsPageViewState extends SecondaryPageViewState {
 
   @override
   Widget getBody(BuildContext context) {
-    return StoreConnector<AppState, List<dynamic>>(
+    return StoreConnector<AppState, Tuple2<List<CourseUnit>, Map<int, MoodleCourseUnit>>>(
       converter: (store) {
-        return store.state.content['currUcs'];
+        return Tuple2(store.state.content['currUcs'], store.state.content['moodleCourseUnitsMap']);
       },
-      builder: (context, ucs) {
-        return UcsList(ucs: ucs);
+      builder: (context, tuple) {
+        return UcsList(ucs: tuple.item1,
+                       moodleCourseUnitsMap: tuple.item2);
       },
     );
   }
@@ -35,13 +39,23 @@ class UcsPageViewState extends SecondaryPageViewState {
 /// Manages the 'Exams' section in the user's personal area and 'Exams Map'.
 class UcsList extends StatelessWidget {
   final List<CourseUnit> ucs;
-
-  UcsList({Key key, @required this.ucs}) : super(key: key);
+  final Map<int, MoodleCourseUnit> moodleCourseUnitsMap;
+  UcsList({Key key, @required this.ucs, @required this.moodleCourseUnitsMap}) : super(key: key);
   
   List<CurricularUnitCard> createAllUnitCards(){
       final List<CurricularUnitCard> curricularUnitCards = [];
-      for (var courseUnit in ucs) {
-          curricularUnitCards.add(CurricularUnitCard(courseUnit));
+      Logger().i('ucs.length = ' + ucs.length.toString());
+      Logger().i('moodleCourseUnitsMap.length = ' + moodleCourseUnitsMap.toString());
+      for (CourseUnit courseUnit in ucs) {
+
+        for(MoodleCourseUnit mc in moodleCourseUnitsMap.values){
+          Logger().i('mcc' + mc.toString());
+        }
+        Logger().i('Create unit cards ' + courseUnit.moodleId.toString());
+
+        MoodleCourseUnit moodleCourseUnit = moodleCourseUnitsMap[courseUnit.moodleId];
+          curricularUnitCards
+              .add(CurricularUnitCard(courseUnit, moodleCourseUnit));
       }
       return curricularUnitCards;
   }

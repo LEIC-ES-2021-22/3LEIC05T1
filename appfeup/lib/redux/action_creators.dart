@@ -7,6 +7,8 @@ import 'package:tuple/tuple.dart';
 import 'package:uni/controller/load_info.dart';
 import 'package:uni/controller/load_static/terms_and_conditions.dart';
 import 'package:uni/controller/local_storage/app_bus_stop_database.dart';
+import 'package:uni/controller/local_storage/app_course_units_database.dart';
+
 import 'package:uni/controller/local_storage/app_courses_database.dart';
 import 'package:uni/controller/local_storage/app_exams_database.dart';
 import 'package:uni/controller/local_storage/app_last_user_info_update_database.dart';
@@ -15,8 +17,15 @@ import 'package:uni/controller/local_storage/app_refresh_times_database.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
 import 'package:uni/controller/local_storage/app_user_database.dart';
 import 'package:uni/controller/local_storage/app_restaurant_database.dart';
+import 'package:uni/controller/local_storage/moodle/course_sections_database.dart';
+import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher_html.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/controller/networking/network_router.dart'
     show NetworkRouter;
+import 'package:collection/collection.dart';
 import 'package:uni/controller/parsers/parser_courses.dart';
 import 'package:uni/controller/parsers/parser_exams.dart';
 import 'package:uni/controller/parsers/parser_fees.dart';
@@ -30,6 +39,8 @@ import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/entities/lecture.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/restaurant.dart';
 import 'package:uni/model/entities/session.dart';
@@ -116,7 +127,17 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
       });
       final ucs =
           NetworkRouter.getCurrentCourseUnits(store.state.content['session'])
-              .then((res) => store.dispatch(SaveUcsAction(res)));
+              .then((res) {
+            store.dispatch(SaveUcsAction(res));
+            Logger().i('saving to db current ucs');
+            final CourseUnitsDatabase db = CourseUnitsDatabase();
+            db.saveCourseUnits(res);
+            Logger().i('done saving to db current ucs');
+            final MoodleCourseUnitsDatabase moodleDb = MoodleCourseUnitsDatabase();
+            moodleDb.saveCourseUnits(res);
+          });
+
+
       await Future.wait([profile, ucs]);
 
       final Tuple2<String, String> userPersistentInfo =
@@ -128,12 +149,28 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
         final AppCoursesDatabase coursesDb = AppCoursesDatabase();
         await coursesDb.saveNewCourses(userProfile.courses);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       Logger().e('Failed to get User Info');
+      Logger().e(e.toString());
+      Logger().e(stackTrace);
+
       store.dispatch(SaveProfileStatusAction(RequestStatus.failed));
     }
 
     action.complete();
+  };
+}
+
+ThunkAction<AppState> updateStateBasedOnLocalCourseUnits() {
+  return (Store<AppState> store) async {
+    Logger().i('updateStateBasedOnLocalCourseUnits');
+    final CourseUnitsDatabase db = CourseUnitsDatabase();
+    final List<CourseUnit> exs = await db.getCourseUnits();
+    for(CourseUnit x in exs){
+      Logger().i('xxx' + x.toString());
+    }
+    Logger().i('courseUnits = ' + exs.length.toString());
+    store.dispatch(SaveUcsAction(exs));
   };
 }
 
@@ -184,6 +221,22 @@ ThunkAction<AppState> updateStateBasedOnLocalUserBusStops() {
 
     store.dispatch(SetBusStopsAction(stops));
     store.dispatch(getUserBusTrips(Completer()));
+  };
+}
+
+ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
+  Logger().i('updateStateBasedOnLocalMoodleContents');
+  return (Store<AppState> store) async{
+    final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
+    final List<MoodleCourseUnit> list = await db.getCourseUnits();
+
+    final Map<int, MoodleCourseUnit> courseUnitsMap = {};
+    for(MoodleCourseUnit mcu in list){
+      courseUnitsMap[mcu.id] = mcu;
+    }
+
+    store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
+    store.dispatch(getAllMoodleContentsFromFetcher(Completer()));
   };
 }
 
@@ -300,6 +353,42 @@ ThunkAction<AppState> getRestaurantsFromFetcher(Completer<Null> action){
     } catch(e){
       Logger().e('Failed to get Restaurants: ${e.toString()}');
       store.dispatch(SetRestaurantsStatusAction(RequestStatus.failed));
+    }
+    action.complete();
+  };
+}
+
+ThunkAction<AppState>
+getAllMoodleContentsFromFetcher(Completer<Null> action){
+  return (Store<AppState> store) async{
+    try{
+      Logger().i('Start moodle contents fetcher');
+      final MoodleUcsFetcher courseUnitsFetcher = MoodleUcsFetcherAPI();
+      List<MoodleCourseUnit> moodleCourseUnits =
+        await courseUnitsFetcher.getUcs(store.state.content['session']);
+
+      final MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
+      Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
+      final CourseSectionsDatabase db = CourseSectionsDatabase();
+      for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
+
+        final List<Section> sections = await fetcher.getSections(courseUnit);
+
+        db.saveSections(sections, courseId: courseUnit.id);
+
+        for (Section section in sections) {
+          db.saveActivities(section.activities, section.id);
+        }
+        courseUnit.sections = sections;
+        moodleCourseUnitsMap[courseUnit.id] = courseUnit;
+      }
+
+      store.dispatch(SetMoodleCourseUnitsAction(moodleCourseUnitsMap));
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
+    } catch(e, s){
+      Logger().e('Failed to get moodle contents: ${e.toString()} ${s}');
+
+      store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
     }
     action.complete();
   };

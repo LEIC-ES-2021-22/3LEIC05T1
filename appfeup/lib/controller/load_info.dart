@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 import 'package:tuple/tuple.dart';
 import 'package:redux/redux.dart';
 import 'package:uni/controller/local_storage/image_offline_storage.dart';
@@ -28,6 +29,7 @@ Future loadReloginInfo(Store<AppState> store) async {
 
     /// TODO: support for multiple faculties. Issue: #445
     store.dispatch(reLogin(userName, password, faculties[0], action: action));
+
     return action.future;
   }
   return Future.error('No credentials stored');
@@ -56,7 +58,8 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
       coursesStates = Completer(),
       trips = Completer(),
       lastUpdate = Completer(),
-      restaurants = Completer();
+      restaurants = Completer(),
+      moodleSections = Completer();
 
   store.dispatch(getUserInfo(userInfo));
   store.dispatch(getUserPrintBalance(printBalance));
@@ -65,11 +68,14 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
   store.dispatch(getUserBusTrips(trips));
   store.dispatch(getRestaurantsFromFetcher(restaurants));
 
+  _getMoodleInfo(store);
+
   final Tuple2<String, String> userPersistentInfo =
       await AppSharedPreferences.getPersistentUserInfo();
   userInfo.future.then((value) {
     store.dispatch(getUserExams(exams, ParserExams(), userPersistentInfo));
     store.dispatch(getUserSchedule(schedule, userPersistentInfo));
+    store.dispatch(getAllMoodleContentsFromFetcher(moodleSections));
   });
 
   final allRequests = Future.wait([
@@ -80,7 +86,8 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
     coursesStates.future,
     userInfo.future,
     trips.future,
-    restaurants.future
+    restaurants.future,
+    moodleSections.future
   ]);
   allRequests.then((futures) {
     store.dispatch(setLastUserInfoUpdateTimestamp(lastUpdate));
@@ -88,7 +95,16 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
   return lastUpdate.future;
 }
 
+void _getMoodleInfo(Store<AppState> store) async{
+  try{
+
+  }catch(e, s){
+    Logger().e(s);
+  }
+}
+
 void loadLocalUserInfoToState(store) async {
+  Logger().i('Loading localUserInfo');
   store.dispatch(
       UpdateFavoriteCards(await AppSharedPreferences.getFavoriteCards()));
   store.dispatch(SetExamFilter(await AppSharedPreferences.getFilteredExams()));
@@ -98,9 +114,11 @@ void loadLocalUserInfoToState(store) async {
       await AppSharedPreferences.getPersistentUserInfo();
   if (userPersistentInfo.item1 != '' && userPersistentInfo.item2 != '') {
     store.dispatch(updateStateBasedOnLocalProfile());
+    store.dispatch(updateStateBasedOnLocalCourseUnits());
     store.dispatch(updateStateBasedOnLocalUserExams());
     store.dispatch(updateStateBasedOnLocalUserLectures());
     store.dispatch(updateStateBasedOnLocalUserBusStops());
+    store.dispatch(updateStateBasedOnLocalMoodleContents());
     store.dispatch(updateStateBasedOnLocalRefreshTimes());
     store.dispatch(updateStateBasedOnLocalTime());
     store.dispatch(SaveProfileStatusAction(RequestStatus.successful));

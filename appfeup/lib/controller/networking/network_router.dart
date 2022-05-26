@@ -2,19 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:html/parser.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/bus_stops/departures_fetcher.dart';
+import 'package:uni/controller/federated_authentication/client.dart';
 import 'package:uni/controller/local_storage/app_shared_preferences.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
+import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher_api.dart';
 import 'package:uni/model/entities/bus.dart';
 import 'package:uni/model/entities/bus_stop.dart';
 import 'package:uni/model/entities/course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/session.dart';
 import 'package:uni/model/entities/trip.dart';
 import 'package:http/http.dart' as http;
 import 'package:query_params/query_params.dart';
 import 'package:synchronized/synchronized.dart';
-extension UriString on String{
+
+extension UriString on String {
   /// Converts a [String] to an [Uri].
   Uri toUri() => Uri.parse(this);
 }
@@ -23,12 +29,12 @@ extension UriString on String{
 class NetworkRouter {
   static http.Client httpClient;
 
+  static FederatedHttpClient fedClient;
   static const int loginRequestTimeout = 20;
 
   static Lock loginLock = Lock();
 
   static Function onReloginFail = () {};
-
 
   /// Creates an authenticated [Session] on the given [faculty] with the
   /// given username [user] and password [pass].
@@ -43,7 +49,15 @@ class NetworkRouter {
     if (response.statusCode == 200) {
       final Session session = Session.fromLogin(response);
       session.persistentSession = persistentSession;
+
+      try {
+        fedClient = FederatedHttpClient(
+            'up' + session.studentNumber + '@fe.up.pt', pass);
+      } catch (e) {
+        Logger().i('FED não tem cookie ' + e.toString());
+      }
       Logger().i('Login successful');
+
       return session;
     } else {
       Logger().e('Login failed');
@@ -84,11 +98,63 @@ class NetworkRouter {
       session.type = responseBody['tipo'];
       session.cookies = NetworkRouter.extractCookies(response.headers);
       Logger().i('Re-login successful');
+      //loginMoodle(session);
       return true;
     } else {
       Logger().e('Re-login failed');
       return false;
     }
+  }
+
+  static Future<bool> loginMoodle(Session session) async {
+    ///auth/shibboleth/index.php
+    final String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
+    await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
+    await fedClient.login(url);
+
+    final http.Response response =
+        await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
+
+    final document = parse(response.body);
+    final List<dynamic> scripts = document.querySelectorAll('script');
+    String sesskey = null;
+    for (dynamic script in scripts) {
+      final String scriptStr = script.innerHtml;
+
+      for (String s in scriptStr.split(';')) {
+        if (s.contains('M.cfg')) {
+          s = s.replaceFirst('M.cfg = ', '');
+          final mcfg = json.decode(s);
+          sesskey = mcfg['sesskey'];
+          break;
+        }
+      }
+      if (sesskey != null) {
+        break;
+      }
+    }
+    Logger().i('Setting session key ' + sesskey);
+
+    if (sesskey == null) {
+      Logger().e('Moodle login SessKey is null');
+      return false;
+    }
+
+    session.moodleSessionKey = sesskey;
+    return true;
+  }
+
+  static Future<http.Response> federatedPost(
+      String url, String body, Session session) async {
+    final http.Response response = await fedClient.request(url,
+        body: body, method: 'POST', contentType: 'application/json');
+    return response;
+  }
+
+  static Future<http.Response> federatedGet(String url) async {
+    final http.Response response =
+        await fedClient.request(url, method: 'get', contentType: 'text/html');
+    return response;
   }
 
   /// Extracts the cookies present in [headers].
@@ -101,6 +167,7 @@ class NetworkRouter {
         cookieList.add(Cookie.fromSetCookieValue(c).toString());
       }
     }
+    Logger().i('extracted Cookies ' + cookieList.join(';'));
     return cookieList.join(';');
   }
 
@@ -125,10 +192,27 @@ class NetworkRouter {
         url, {'pv_codigo': session.studentNumber}, session);
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
+
+      final MoodleUcsFetcher moodleUcsFetcher = MoodleUcsFetcherAPI();
+      await NetworkRouter.loginMoodle(session);
+      final List<MoodleCourseUnit> ucsWithMoodle =
+          await moodleUcsFetcher.getUcs(session);
+
       final List<CourseUnit> ucs = <CourseUnit>[];
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
-          ucs.add(CourseUnit.fromJson(uc));
+          bool hasMoodle = false;
+          for (MoodleCourseUnit courseUnit in ucsWithMoodle) {
+            if (uc['ucurr_nome'] == courseUnit.fullName) {
+              hasMoodle = true;
+              ucs.add(CourseUnit.fromJson(uc,
+                  hasMoodle: hasMoodle, moodleId: courseUnit.id));
+              break;
+            }
+          }
+          if (!hasMoodle) {
+            ucs.add(CourseUnit.fromJson(uc, hasMoodle: hasMoodle));
+          }
         }
       }
       return ucs;
@@ -139,7 +223,11 @@ class NetworkRouter {
   /// Makes an authenticated GET request with the given [session] to the
   /// resource located at [url] with the given [query] parameters.
   static Future<http.Response> getWithCookies(
-      String baseUrl, Map<String, String> query, Session session) async {
+      String baseUrl, Map<String, String> query, Session session,
+      {cookies = null}) async {
+    if (cookies == null) {
+      cookies = session.cookies;
+    }
     final loginSuccessful = await session.loginRequest;
     if (loginSuccessful is bool && !loginSuccessful) {
       return Future.error('Login failed');
@@ -151,9 +239,8 @@ class NetworkRouter {
     });
 
     final url = baseUrl + params.toString();
-
     final Map<String, String> headers = Map<String, String>();
-    headers['cookie'] = session.cookies;
+    headers['cookie'] = cookies;
     final http.Response response = await (httpClient != null
         ? httpClient.get(url.toUri(), headers: headers)
         : http.get(url.toUri(), headers: headers));
@@ -163,11 +250,42 @@ class NetworkRouter {
       // HTTP403 - Forbidden
       final bool success = await relogin(session);
       if (success) {
-        headers['cookie'] = session.cookies;
+        headers['cookie'] = cookies;
         return http.get(url.toUri(), headers: headers);
       } else {
         onReloginFail();
         Logger().e('Login failed');
+        return Future.error('Login failed');
+      }
+    } else {
+      return Future.error('HTTP Error ${response.statusCode}');
+    }
+  }
+
+  static Future<http.Response> postWithCookies(
+      String url, Session session, Map<String, dynamic> jsonBody) async {
+    final loginSuccessful = await session.loginRequest;
+    if (loginSuccessful is bool && !loginSuccessful) {
+      return Future.error('Login failed');
+    }
+
+    final Map<String, String> headers = Map<String, String>();
+    headers['cookie'] = session.cookies;
+    final String jsonStr = '[' + json.encode(jsonBody) + ']';
+
+    final http.Response response = await (httpClient != null
+        ? httpClient.post(url.toUri(), headers: headers, body: jsonStr)
+        : http.post(url.toUri(), headers: headers, body: jsonStr));
+    if (response.statusCode == 200) {
+      return response;
+    } else if (response.statusCode == 403) {
+      // HTTP403 - Forbidden
+      final bool success = await relogin(session);
+      if (success) {
+        headers['cookie'] = session.cookies;
+        return http.post(url.toUri(), headers: headers, body: jsonStr);
+      } else {
+        onReloginFail();
         return Future.error('Login failed');
       }
     } else {
@@ -225,6 +343,10 @@ class NetworkRouter {
   /// Returns the base url of the user's faculty.
   static String getBaseUrl(String faculty) {
     return 'https://sigarra.up.pt/$faculty/pt/';
+  }
+
+  static String getMoodleUrl() {
+    return 'https://moodle.up.pt/';
   }
 
   /// Returns the base url from the user's previous session.

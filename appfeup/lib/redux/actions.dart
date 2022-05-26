@@ -2,6 +2,8 @@ import 'package:uni/model/app_state.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/entities/lecture.dart';
+import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/profile.dart';
 import 'package:uni/model/entities/restaurant.dart';
 import 'package:uni/model/entities/session.dart';
@@ -38,6 +40,16 @@ class SetRestaurantsAction {
 class SetRestaurantsStatusAction {
   RequestStatus status;
   SetRestaurantsStatusAction(this.status);
+}
+
+class SetMoodleCourseUnitsStatusAction {
+  RequestStatus status;
+  SetMoodleCourseUnitsStatusAction(this.status);
+}
+
+class SetMoodleCourseUnitsAction {
+  Map<int, MoodleCourseUnit> courseUnits;
+  SetMoodleCourseUnitsAction(this.courseUnits);
 }
 
 class SetScheduleAction {

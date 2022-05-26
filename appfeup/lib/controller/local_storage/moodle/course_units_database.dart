@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:uni/controller/local_storage/moodle/course_sections_database.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
-import 'package:uni/model/entities/moodle/section.dart';
+import 'package:uni/model/entities/moodle/moodle_section.dart';
 
 import '../app_database.dart';
 

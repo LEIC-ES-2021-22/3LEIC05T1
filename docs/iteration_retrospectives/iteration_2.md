@@ -1,4 +1,4 @@
-# Iteration 1 retrospective
+# Iteration 2 retrospective
 ## Link to the release 
 
 https://github.com/LEIC-ES-2021-22/3LEIC05T1/releases/tag/v2

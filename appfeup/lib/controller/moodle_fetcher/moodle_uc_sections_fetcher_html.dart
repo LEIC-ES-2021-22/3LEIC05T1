@@ -3,7 +3,9 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
+import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
+import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_list.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
@@ -11,6 +13,8 @@ import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/session.dart';
 import 'package:uni/model/utils/moodle_activity_type.dart';
 
+import '../../model/entities/moodle/activities/course_info/moodle_course_info_table.dart';
+import '../../model/entities/moodle/activities/course_info/moodle_course_info_title.dart';
 import '../../model/entities/moodle/activities/moodle_page.dart';
 import '../networking/network_router.dart';
 
@@ -48,7 +52,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         final MoodleActivity activity =
             await _getActivityFromElement(activityElement);
 
-        if (activity is MoodleActivity){
+        if (activity is MoodleActivity) {
           sectionActivities.add(activity);
         }
       }
@@ -80,27 +84,201 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         final Response response =
             await NetworkRouter.federatedGet(courseInfoPageUrl);
 
-        //Logger().i(response.body);
-
         if (response.statusCode != 200) {
           // throw error
-          print('Too fast, cant wait');
         }
 
-        final document = parse(response.body);
-        final Map<String, String> content = Map();
+        final page = parse(response.body);
+        final courseInfoHtml =
+            page.querySelector('#sigarracourseinfo').innerHtml;
 
-        print('Uc name ' + document.querySelector('h1').text);
+        final document = parse(courseInfoHtml);
+        final List<dynamic> content = [];
 
-        content[document.querySelector('h1').text] =
-            'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
-        content['Língua de trabalho'] = 'Português';
-        content['Objetivos'] =
-            'Familiarizar-se com os métodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
-        content['Melhoria de Classificação'] =
-            'A classificação da componente EF pode ser melhorada na época de recurso.\nRealização de trabalhos alternativos na época seguinte da disciplina.';
-        return SigarraCourseInfo(
-            1, 'UC Info - ' + document.querySelector('h1').text, content);
+        // UC name
+        final ucName = document.querySelectorAll('#conteudoinner > h1')[1];
+        content.add(CourseInfoTitle(ucName.text, 1));
+        // Uc code and short name
+        for (final elem in ucName.nextElementSibling
+            .getElementsByClassName('formulario-legenda')) {
+          content.add(elem.text + elem.nextElementSibling.text);
+        }
+
+        // Occurrence
+        final occurrence = document.querySelector('h2');
+        // Occurrence String
+        content.add(CourseInfoTitle(occurrence.text, 2));
+        // Occurrence Info
+        for (final element in occurrence.nextElementSibling
+            .getElementsByClassName('formulario-legenda')) {
+          content.add(element.text + element.nextElementSibling.text);
+        }
+
+        for (final element in document.querySelectorAll('h3')) {
+          content.add(CourseInfoTitle(element.text, 3));
+          switch (element.text) {
+            case 'Ciclos de Estudo/Cursos':
+              // Degree / Study Cycle Info
+              final Map<String, String> studyCycleInfo = Map();
+              final th = element.nextElementSibling.querySelectorAll('th');
+              final td = element.nextElementSibling.querySelectorAll('td');
+
+              for (int i = 0; i < th.length; i += 1) {
+                studyCycleInfo[th[i].text] = td[i].text;
+              }
+
+              List<List<String>> table = [];
+              table.add(th.map((e) => e.text).toList());
+              table.add(td.map((e) => e.text).toList());
+
+              content.add(CourseInfoTable(table));
+              break;
+
+            case 'Docência - Responsabilidades':
+              final List<List<String>> responsabilities = [];
+              for (final d
+                  in element.nextElementSibling.getElementsByClassName('d')) {
+                responsabilities.add([d.children[0].text, d.children[1].text]);
+              }
+
+              content.add(CourseInfoTable(responsabilities));
+              break;
+
+            case 'Docência - Horas':
+              final List<List<String>> classtime = [];
+              for (final elem in element.nextElementSibling
+                  .getElementsByClassName('formulario-legenda')) {
+                classtime.add([elem.text, elem.nextElementSibling.text]);
+              }
+              content.add(CourseInfoTable(classtime));
+
+              List<List<String>> teacherTimes = [];
+              String type = '';
+
+              for (final d in element.nextElementSibling.nextElementSibling
+                  .getElementsByClassName('d')) {
+                if (d.children[0].classes.contains('k')) {
+                  if (type != '') {
+                    content.add(CourseInfoTitle(type, 4));
+                    content.add(CourseInfoTable(teacherTimes));
+                    teacherTimes = [];
+                  }
+                  type = d.children[0].text;
+                  continue;
+                }
+                teacherTimes.add([d.children[0].text, d.children[2].text]);
+              }
+              break;
+
+            case 'Componentes de Avaliação':
+              final List<List<String>> eval = [];
+              for (final elem
+                  in element.nextElementSibling.getElementsByClassName('d')) {
+                eval.add([elem.text, elem.nextElementSibling.text]);
+              }
+              content.add(CourseInfoTable(eval));
+              break;
+
+            case 'Componentes de Ocupação':
+              final List<List<String>> occupation = [];
+              for (final elem
+                  in element.nextElementSibling.getElementsByClassName('d')) {
+                occupation.add([elem.text, elem.nextElementSibling.text]);
+              }
+
+              content.add(CourseInfoTable(occupation));
+              break;
+
+            default:
+              // Extract section HTML code from complete courseinfo page
+              Element nextElement = element;
+
+              while (nextElement.nextElementSibling != null &&
+                  (nextElement.nextElementSibling.localName != 'h3' &&
+                      nextElement.nextElementSibling.localName != 'script')) {
+                nextElement = nextElement.nextElementSibling;
+              }
+
+              String sectionHtml = courseInfoHtml.substring(
+                  courseInfoHtml.indexOf(element.outerHtml) +
+                      element.outerHtml.length,
+                  nextElement.nextElementSibling == null
+                      ? courseInfoHtml.indexOf(
+                          '</div>',
+                          courseInfoHtml.indexOf(element.outerHtml) +
+                              element.outerHtml.length)
+                      : courseInfoHtml
+                          .indexOf(nextElement.nextElementSibling.outerHtml));
+
+              // Add missing tags, in order to read loose text
+              Document section =
+                  parse('<html><body>' + sectionHtml + '</body></html>');
+              for (final elem in section.body.children) {
+                if (elem.localName == 'br') {
+                  continue;
+                }
+                sectionHtml = sectionHtml.substring(
+                        0, sectionHtml.indexOf(elem.outerHtml)) +
+                    '</p>' +
+                    elem.outerHtml +
+                    '<p>' +
+                    sectionHtml.substring(sectionHtml.indexOf(elem.outerHtml) +
+                        elem.outerHtml.length);
+              }
+              sectionHtml = '<p>' + sectionHtml + '</p>';
+
+              // Reparse the code
+              section = parse('<html><body>' + sectionHtml + '</body></html>');
+              for (final elem in section.body.children) {
+                switch (elem.localName) {
+                  case 'p':
+                    if (elem.text == '') {
+                      break;
+                    }
+
+                    content.add(elem.text);
+                    break;
+
+                  case 'table':
+                    final List<List<String>> t = [];
+                    t.add(elem
+                        .querySelectorAll('th')
+                        .map((e) => e.text)
+                        .toList());
+
+                    t.add(elem
+                        .querySelectorAll('td')
+                        .map((e) => e.text)
+                        .toList());
+
+                    break;
+
+                  case 'ul':
+                  case 'ol':
+                    final List<String> entries = [];
+
+                    for (final entry in elem.children) {
+                      if (entry.localName != 'li') {
+                        continue;
+                      }
+                      entries.add(entry.text);
+                    }
+                    if (entries.isNotEmpty) {
+                      content.add(CourseInfoList(entries));
+                      break;
+                    }
+                    continue;
+                  default:
+                    content.add(elem.text);
+                }
+              }
+              break;
+          }
+        }
+
+        Logger().i('Course info contents: \n' + content.toString());
+
+        return SigarraCourseInfo(1, 'UC Info', content);
 
       case MoodleActivityType.summaries:
         return null;

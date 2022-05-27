@@ -171,22 +171,26 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
               break;
 
             case 'Componentes de Avaliação':
-              final List<List<String>> eval = [];
-              for (final elem
-                  in element.nextElementSibling.getElementsByClassName('d')) {
-                eval.add([elem.text, elem.nextElementSibling.text]);
-              }
-              content.add(CourseInfoTable(eval));
-              break;
-
             case 'Componentes de Ocupação':
-              final List<List<String>> occupation = [];
+              final List<List<String>> table = [];
+
+              table.add(element.nextElementSibling
+                  .querySelectorAll('th')
+                  .map((e) => e.text)
+                  .toList());
+
               for (final elem
                   in element.nextElementSibling.getElementsByClassName('d')) {
-                occupation.add([elem.text, elem.nextElementSibling.text]);
+                table.add([elem.text, elem.nextElementSibling.text]);
               }
 
-              content.add(CourseInfoTable(occupation));
+              table.add(element.nextElementSibling
+                  .querySelector('.totais')
+                  .children
+                  .map((e) => e.text)
+                  .toList());
+
+              content.add(CourseInfoTable(table));
               break;
 
             default:

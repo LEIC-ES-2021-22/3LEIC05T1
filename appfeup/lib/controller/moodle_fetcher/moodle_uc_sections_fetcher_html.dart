@@ -47,6 +47,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           .whereType<MoodleActivity>()
           .toList();
 
+      /*
       final Map<String, String> contenta = Map();
       contenta['Ocorrência: 2021/2022 - 2S'] =
       'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
@@ -69,7 +70,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
       ];
       activities.add(PageActivity(2, 'Example RMI', pageContent.join('\n')));
       //print('Act now' + activities.toString());
-
+      */
       return Section(int.parse(sectionId), title, summary,
           activities: activities, courseUnitId: courseUnit.id);
     }).toList();
@@ -90,13 +91,16 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
       case MoodleActivityType.sigarracourseinfo:
         // TODO: Handle this case.
         final Map<String, String> content = Map();
+        /*
         content['Ocorrência: 2021/2022 - 2S'] =
             'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
         content['Língua de trabalho'] = 'Português';
         content['Objetivos'] =
-            'Familiarizar-se com os métodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
+            'Familiarizar-se com os méEtodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
         content['Melhoria de Classificação'] =
             'A classificação da componente EF pode ser melhorada na época de recurso.\nRealização de trabalhos alternativos na época seguinte da disciplina.';
+            
+         */
         return SigarraCourseInfo(1, 'title', content);
 
       case MoodleActivityType.summaries:

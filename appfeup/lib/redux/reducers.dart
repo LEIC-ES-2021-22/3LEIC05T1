@@ -66,6 +66,8 @@ AppState appReducers(AppState state, dynamic action) {
     return setRestaurantsAction(state, action);
   } else if(action is SetMoodleCourseUnitsAction){
     return setMoodleCourseUnitsAction(state, action);
+  } else if(action is SetMoodleCourseUnitsStatusAction){
+    return setMoodleCourseUnitsStatusAction(state, action);
   }
   return state;
 }
@@ -93,6 +95,11 @@ AppState setRestaurantsAction(AppState state, SetRestaurantsAction action) {
 AppState setMoodleCourseUnitsAction(AppState state, SetMoodleCourseUnitsAction action) {
   Logger().i('setting moodle course units: ' + action.courseUnits.length.toString());
   return state.cloneAndUpdateValue('moodleCourseUnitsMap', action.courseUnits);
+}
+
+AppState setMoodleCourseUnitsStatusAction(AppState state, SetMoodleCourseUnitsStatusAction action) {
+  Logger().i('setting moodle course units status: ' + action.status.toString());
+  return state.cloneAndUpdateValue('moodleCourseUnitsStatus', action.status);
 }
 
 AppState setExamsStatus(AppState state, SetExamsStatusAction action) {

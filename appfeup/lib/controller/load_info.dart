@@ -68,8 +68,6 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
   store.dispatch(getUserBusTrips(trips));
   store.dispatch(getRestaurantsFromFetcher(restaurants));
 
-  _getMoodleInfo(store);
-
   final Tuple2<String, String> userPersistentInfo =
       await AppSharedPreferences.getPersistentUserInfo();
   userInfo.future.then((value) {
@@ -93,14 +91,6 @@ Future loadRemoteUserInfoToState(Store<AppState> store) async {
     store.dispatch(setLastUserInfoUpdateTimestamp(lastUpdate));
   });
   return lastUpdate.future;
-}
-
-void _getMoodleInfo(Store<AppState> store) async{
-  try{
-
-  }catch(e, s){
-    Logger().e(s);
-  }
 }
 
 void loadLocalUserInfoToState(store) async {

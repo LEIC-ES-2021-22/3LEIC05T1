@@ -20,7 +20,9 @@ class CourseSectionsDatabase extends AppDatabase{
         section_id INTEGER,
         title TEXT,
         type TEXT,
-        description TEXT
+        description TEXT,
+        file_path TEXT,
+        file_url TEXT
         )
     ''']);
 
@@ -39,6 +41,8 @@ class CourseSectionsDatabase extends AppDatabase{
         final Batch batch = db.batch();
 
         for(Section section in sections){
+            batch.delete('SECTION_MODULES', where : 'section_id = ?', whereArgs: [section.id]);
+            batch.delete(_TABLENAME, where : 'id = ?', whereArgs: [section.id]);
             batch.insert(_TABLENAME, section.toMap(courseId));
         }
         batch.commit(noResult: true);

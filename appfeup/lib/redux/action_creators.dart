@@ -390,8 +390,11 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
     } catch(e, s){
       Logger().e('Failed to get moodle contents: ${e.toString()} ${s}');
-
-      store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
+      if(!store.state.content.containsKey('moodleCourseUnitsMap')) {
+        store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
+      } else {
+        store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.successful));
+      }
     }
     action.complete();
   };

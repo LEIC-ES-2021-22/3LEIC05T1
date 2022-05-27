@@ -96,7 +96,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
         content['Língua de trabalho'] = 'Português';
         content['Objetivos'] =
-            'Familiarizar-se com os métodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
+            'Familiarizar-se com os méEtodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
         content['Melhoria de Classificação'] =
             'A classificação da componente EF pode ser melhorada na época de recurso.\nRealização de trabalhos alternativos na época seguinte da disciplina.';
             

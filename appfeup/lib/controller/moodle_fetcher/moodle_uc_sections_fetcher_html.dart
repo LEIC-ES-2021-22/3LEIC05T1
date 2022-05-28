@@ -6,6 +6,7 @@ import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_list.dart';
+import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_section.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
@@ -93,29 +94,33 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             page.querySelector('#sigarracourseinfo').innerHtml;
 
         final document = parse(courseInfoHtml);
-        final List<dynamic> content = [];
+        final List<CourseInfoSection> content = [];
 
         // UC name
         final ucName = document.querySelectorAll('#conteudoinner > h1')[1];
-        content.add(CourseInfoTitle(ucName.text, 1));
+        final List<dynamic> ucNameInfo = [];
         // Uc code and short name
         for (final elem in ucName.nextElementSibling
             .getElementsByClassName('formulario-legenda')) {
-          content.add(elem.text + elem.nextElementSibling.text);
+          ucNameInfo.add(elem.text + elem.nextElementSibling.text);
         }
+
+        content.add(
+            CourseInfoSection(CourseInfoTitle(ucName.text, 1), ucNameInfo));
 
         // Occurrence
         final occurrence = document.querySelector('h2');
-        // Occurrence String
-        content.add(CourseInfoTitle(occurrence.text, 2));
         // Occurrence Info
+        final List<dynamic> occurenceInfo = [];
         for (final element in occurrence.nextElementSibling
             .getElementsByClassName('formulario-legenda')) {
-          content.add(element.text + element.nextElementSibling.text);
+          occurenceInfo.add(element.text + element.nextElementSibling.text);
         }
 
+        content.add(CourseInfoSection(
+            CourseInfoTitle(occurrence.text, 2), occurenceInfo));
+
         for (final element in document.querySelectorAll('h3')) {
-          content.add(CourseInfoTitle(element.text, 3));
           switch (element.text) {
             case 'Ciclos de Estudo/Cursos':
               // Degree / Study Cycle Info
@@ -131,7 +136,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
               table.add(th.map((e) => e.text).toList());
               table.add(td.map((e) => e.text).toList());
 
-              content.add(CourseInfoTable(table));
+              content.add(CourseInfoSection(
+                  CourseInfoTitle(element.text, 3), [CourseInfoTable(table)]));
               break;
 
             case 'Docência - Responsabilidades':
@@ -141,7 +147,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                 responsabilities.add([d.children[0].text, d.children[1].text]);
               }
 
-              content.add(CourseInfoTable(responsabilities));
+              content.add(CourseInfoSection(CourseInfoTitle(element.text, 3),
+                  [CourseInfoTable(responsabilities)]));
               break;
 
             case 'Docência - Horas':
@@ -150,8 +157,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                   .getElementsByClassName('formulario-legenda')) {
                 classtime.add([elem.text, elem.nextElementSibling.text]);
               }
-              content.add(CourseInfoTable(classtime));
 
+              List<dynamic> teacherTimesInfo = [];
               List<List<String>> teacherTimes = [];
               String type = '';
 
@@ -159,8 +166,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                   .getElementsByClassName('d')) {
                 if (d.children[0].classes.contains('k')) {
                   if (type != '') {
-                    content.add(CourseInfoTitle(type, 4));
-                    content.add(CourseInfoTable(teacherTimes));
+                    teacherTimesInfo.add(CourseInfoTitle(type, 4));
+                    teacherTimesInfo.add(CourseInfoTable(teacherTimes));
                     teacherTimes = [];
                   }
                   type = d.children[0].text;
@@ -168,6 +175,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                 }
                 teacherTimes.add([d.children[0].text, d.children[2].text]);
               }
+              List<dynamic> timesContent = [];
+              timesContent.add(CourseInfoTable(classtime));
+              timesContent.addAll(teacherTimesInfo);
+              content.add(CourseInfoSection(
+                  CourseInfoTitle(element.text, 3), timesContent));
               break;
 
             case 'Componentes de Avaliação':
@@ -190,7 +202,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                   .map((e) => e.text)
                   .toList());
 
-              content.add(CourseInfoTable(table));
+              content.add(CourseInfoSection(
+                  CourseInfoTitle(element.text, 3), [CourseInfoTable(table)]));
               break;
 
             default:
@@ -233,6 +246,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
 
               // Reparse the code
               section = parse('<html><body>' + sectionHtml + '</body></html>');
+              // Extract info
+              List<dynamic> courseInfoGeneral = [];
               for (final elem in section.body.children) {
                 switch (elem.localName) {
                   case 'p':
@@ -240,7 +255,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                       break;
                     }
 
-                    content.add(elem.text);
+                    courseInfoGeneral.add(elem.text);
                     break;
 
                   case 'table':
@@ -268,14 +283,16 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                       entries.add(entry.text);
                     }
                     if (entries.isNotEmpty) {
-                      content.add(CourseInfoList(entries));
+                      courseInfoGeneral.add(CourseInfoList(entries));
                       break;
                     }
                     continue;
                   default:
-                    content.add(elem.text);
+                    courseInfoGeneral.add(elem.text);
                 }
               }
+              content.add(CourseInfoSection(
+                  CourseInfoTitle(element.text, 3), courseInfoGeneral));
               break;
           }
         }

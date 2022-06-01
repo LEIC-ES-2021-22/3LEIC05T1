@@ -6,5 +6,5 @@ import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/session.dart';
 
 abstract class MoodleUcSectionsFetcher {
-  Future<List<Section>> getSections(MoodleCourseUnit uc);
+  Future<List<MoodleSection>> getSections(MoodleCourseUnit uc);
 }

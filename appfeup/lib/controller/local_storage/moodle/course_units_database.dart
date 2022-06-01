@@ -42,7 +42,7 @@ class MoodleCourseUnitsDatabase extends AppDatabase{
         final List<MoodleCourseUnit> courseUnits = [];
         for(Map<String, dynamic> map in coursesMap){
             final int id = map['id'];
-            final List<Section> sections =
+            final List<MoodleSection> sections =
                 await sectionsDatabase.getSections(id);
             courseUnits.add(MoodleCourseUnit(id, fullName: map['designation'], sections: sections));
         }

@@ -1,6 +1,6 @@
 import 'moodle_activity.dart';
 
-class Section {
+class MoodleSection {
   final int id;
   final String title;
   final String summary;
@@ -8,11 +8,11 @@ class Section {
 
   final List<MoodleActivity> activities;
 
-  Section(this.id, this.title, this.summary,
+  MoodleSection(this.id, this.title, this.summary,
       {this.activities, this.courseUnitId});
 
-  static Section fromMap(Map<String, dynamic> map) {
-    return Section(map['id'], map['title'], map['summary']);
+  static MoodleSection fromMap(Map<String, dynamic> map) {
+    return MoodleSection(map['id'], map['title'], map['summary']);
   }
 
   Map<String, dynamic> toMap(int unitCourseId) {

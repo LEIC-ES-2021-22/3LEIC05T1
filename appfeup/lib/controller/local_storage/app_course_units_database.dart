@@ -30,16 +30,13 @@ class CourseUnitsDatabase extends AppDatabase {
     ''']);
 
   void saveCourseUnits(List<CourseUnit> courseUnits) async{
-    Logger().i('Saving course units' + courseUnits.length.toString());
     final Database db = await getDatabase();
     final Batch batch = db.batch();
     for(CourseUnit unit in courseUnits){
       _saveCourseUnit(unit, batch);
     }
     batch.commit(noResult: true);
-    Logger().i('Done saving course units');
     final List<Map<String, dynamic>> coursesMap = await db.query(_TABLENAME);
-    Logger().i('CoursesMap.length after inserting = ' + coursesMap.length.toString());
     db.close();
   }
 
@@ -49,11 +46,8 @@ class CourseUnitsDatabase extends AppDatabase {
 
   Future<List<CourseUnit>> getCourseUnits() async{
     final Database db = await getDatabase();
-    Logger().i('ola');
     final List<Map<String, dynamic>> coursesMap = await db.query(_TABLENAME);
-    Logger().i('CoursesMap.length = ' + coursesMap.length.toString());
     return coursesMap.map( (map){
-      Logger().i('ola' + map['id'].toString());
       return CourseUnit.fromMap(map);
       }
     ).toList();

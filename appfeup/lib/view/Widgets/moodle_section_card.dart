@@ -33,6 +33,9 @@ class SectionCard extends StatefulWidget {
 
   List<Widget> createActivities(BuildContext context) {
     final List<Widget> widgets = [];
+    if(this.section.activities == null){
+      return widgets;
+    }
     this.section.activities.forEach((element) {
       widgets.add(Row(
         children: <Widget>[

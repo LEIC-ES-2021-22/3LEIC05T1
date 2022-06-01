@@ -10,6 +10,7 @@ import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/view/Pages/secondary_page_view.dart';
 import 'package:uni/view/Widgets/curricular_unit_card.dart';
 import 'package:uni/utils/constants.dart' as Constants;
+import 'package:uni/view/Widgets/page_title.dart';
 
 
 /// Manages the 'schedule' sections of the app
@@ -24,15 +25,51 @@ class UcsPageViewState extends SecondaryPageViewState {
 
   @override
   Widget getBody(BuildContext context) {
-    return StoreConnector<AppState, Tuple2<List<CourseUnit>, Map<int, MoodleCourseUnit>>>(
+    return StoreConnector<AppState,
+        Tuple3<List<CourseUnit>,
+            Map<int, MoodleCourseUnit>,
+            RequestStatus>
+    >(
       converter: (store) {
-        return Tuple2(store.state.content['currUcs'], store.state.content['moodleCourseUnitsMap']);
+        return Tuple3(store.state.content['currUcs'],
+                      store.state.content['moodleCourseUnitsMap'],
+                      store.state.content['moodleCourseUnitsStatus']);
       },
       builder: (context, tuple) {
-        return UcsList(ucs: tuple.item1,
-                       moodleCourseUnitsMap: tuple.item2);
+        final List<Widget> result = [];
+        result.add(getPageTitle());
+        switch(tuple.item3){
+          case RequestStatus.none:
+            // TODO: Handle this case.
+            break;
+          case RequestStatus.busy:
+            //result.add(getPageTitle());
+
+            result.add(Container(
+                padding: EdgeInsets.all(22.0),
+                child: Center(child: CircularProgressIndicator()))
+            )
+            ;
+            return ListView(children: result);
+            break;
+          case RequestStatus.failed:
+            result.add(Text('Erro ao carregar moodle'));
+            return ListView(children: result,);
+
+          case RequestStatus.successful:
+            result.add(UcsList(ucs: tuple.item1,
+                moodleCourseUnitsMap: tuple.item2));
+            return ListView(children: result,);
+        }
+        return ListView(children: result,);
+        return Container();
       },
     );
+  }
+  Container getPageTitle() {
+    return Container(
+        padding: EdgeInsets.only(bottom: 12.0),
+        child: PageTitle(name: 'Unidades curriculares'));
   }
 }
 
@@ -44,15 +81,7 @@ class UcsList extends StatelessWidget {
   
   List<CurricularUnitCard> createAllUnitCards(){
       final List<CurricularUnitCard> curricularUnitCards = [];
-      Logger().i('ucs.length = ' + ucs.length.toString());
-      Logger().i('moodleCourseUnitsMap.length = ' + moodleCourseUnitsMap.toString());
       for (CourseUnit courseUnit in ucs) {
-
-        for(MoodleCourseUnit mc in moodleCourseUnitsMap.values){
-          Logger().i('mcc' + mc.toString());
-        }
-        Logger().i('Create unit cards ' + courseUnit.moodleId.toString());
-
         MoodleCourseUnit moodleCourseUnit = moodleCourseUnitsMap[courseUnit.moodleId];
           curricularUnitCards
               .add(CurricularUnitCard(courseUnit, moodleCourseUnit));
@@ -61,29 +90,14 @@ class UcsList extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 5),
-          child: 
-         
-            Text(
-              Constants.ucs, 
-              style:
-                Theme.of(context).textTheme.headline6.apply(fontSizeFactor: 1.3),)
-          
-          ),
+    return
         Container(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             //TODO - Por a retornar uma lista de cards
             children: createAllUnitCards(),
           ),
-        ),
-        
-      
-      ],
-    );
+        );
   }
 
 

@@ -364,7 +364,7 @@ ThunkAction<AppState>
 getAllMoodleContentsFromFetcher(Completer<Null> action){
   return (Store<AppState> store) async{
     try{
-      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
+
       Logger().i('Start moodle contents fetcher');
       final MoodleUcsFetcher courseUnitsFetcher = MoodleUcsFetcherAPI();
       List<MoodleCourseUnit> moodleCourseUnits =
@@ -373,6 +373,7 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       final MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
       Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
       final CourseSectionsDatabase db = CourseSectionsDatabase();
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
       for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
 
         final List<Section> sections = await fetcher.getSections(courseUnit);

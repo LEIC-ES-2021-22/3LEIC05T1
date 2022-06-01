@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
@@ -77,6 +78,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
   }
 
   MoodleActivity _getActivityFromElement(Element element) {
+
     MoodleActivityType type;
     for (String elemClass in element.classes) {
       type = stringToActivityEnum(elemClass);
@@ -87,21 +89,19 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     if (type == null) {
       return null;
     }
+    int id = int.parse(element.attributes['id'].split('-')[1]);
+
+    String title;
+    final Element noLinkElem = element.querySelector('.contentwithoutlink');
+    if(noLinkElem != null){
+      title = noLinkElem.text;
+    } else {
+      title = element.querySelector('.aalink').text;
+    }
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
-        // TODO: Handle this case.
         final Map<String, String> content = Map();
-        /*
-        content['Ocorrência: 2021/2022 - 2S'] =
-            'Ativa?    Sim\nUnidade Responsável:    Departamento de Engenharia Informática\nCurso/CE Responsável:    Licenciatura em Engenharia Informática e Computação';
-        content['Língua de trabalho'] = 'Português';
-        content['Objetivos'] =
-            'Familiarizar-se com os méEtodos de engenharia e gestão necessários ao desenvolvimento de sistemas de software complexos e/ou em larga escala, de forma economicamente eficaz e com elevada qualidade.';
-        content['Melhoria de Classificação'] =
-            'A classificação da componente EF pode ser melhorada na época de recurso.\nRealização de trabalhos alternativos na época seguinte da disciplina.';
-            
-         */
-        return SigarraCourseInfo(1, 'title', content);
+        return SigarraCourseInfo(id, title, content);
 
       case MoodleActivityType.summaries:
         return null;
@@ -116,6 +116,9 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         // TODO: Handle this case.
         break;
       case MoodleActivityType.url:
+        String url = element.querySelector("a.aalink").attributes['href']
+            + '&redirect=1';
+        return UrlActivity(id, title, url);
         // TODO: Handle this case.
         break;
       case MoodleActivityType.quiz:

@@ -6,5 +6,5 @@ class SigarraCourseInfo extends MoodleActivity {
 
   SigarraCourseInfo(
       int id, String title, List<dynamic> this.content)
-      : super(id, title, MoodleActivityType.sigarracourseinfo.name);
+      : super(id, title, MoodleActivityType.sigarracourseinfo);
 }

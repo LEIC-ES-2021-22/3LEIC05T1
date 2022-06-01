@@ -8,6 +8,7 @@ import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_list.dart';
 import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_section.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
@@ -75,6 +76,15 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     }
     if (type == null) {
       return null;
+    }
+    int id = int.parse(element.attributes['id'].split('-')[1]);
+
+    String title;
+    final Element noLinkElem = element.querySelector('.contentwithoutlink');
+    if(noLinkElem != null){
+      title = noLinkElem.text;
+    } else {
+      title = element.querySelector('.aalink').text;
     }
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
@@ -297,7 +307,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           }
         }
 
-        Logger().i('Course info contents: \n' + content.toString());
+
 
         return SigarraCourseInfo(1, 'UC Info', content);
 
@@ -326,6 +336,9 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         return PageActivity(2, 'Example RMI', pageContent.join('\n'));
 
       case MoodleActivityType.url:
+        String url = element.querySelector("a.aalink").attributes['href']
+            + '&redirect=1';
+        return UrlActivity(id, title, url);
         // TODO: Handle this case.
         break;
       case MoodleActivityType.quiz:

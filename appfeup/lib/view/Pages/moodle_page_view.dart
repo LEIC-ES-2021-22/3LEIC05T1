@@ -42,9 +42,9 @@ class MoodlePageViewState extends UnnamedPageView {
                 .apply(fontSizeFactor: 1.3),
           )),
     ];
-    final List<Section> sections = uc.sections;
+    final List<MoodleSection> sections = uc.sections;
 
-    for (Section section in sections) {
+    for (MoodleSection section in sections) {
       list.add(SectionCard(section));
     }
 

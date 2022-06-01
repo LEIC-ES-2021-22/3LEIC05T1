@@ -44,7 +44,7 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
   List<Widget> createContent(BuildContext context) {
     final List<Widget> widgets = [];
 
-    this.ucInfo.content.forEach((key, value) {
+    /*this.ucInfo.content.forEach((key, value) {
       widgets.add(
         Flexible(
           child: Container(
@@ -74,7 +74,7 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
           ),
         ),
       );
-    });
+    });*/
     return widgets;
   }
 }

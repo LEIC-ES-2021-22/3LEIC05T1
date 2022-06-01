@@ -4,18 +4,19 @@ import 'package:uni/model/entities/moodle/moodle_section.dart';
 
 import '../app_database.dart';
 
-class CourseSectionsDatabase extends AppDatabase{
-    static final  String _TABLENAME = 'course_sections';
+class CourseSectionsDatabase extends AppDatabase {
+  static final String _TABLENAME = 'course_sections';
 
-    CourseSectionsDatabase(): super(_TABLENAME + '.db',
-    [''' CREATE TABLE COURSE_SECTIONS(
+  CourseSectionsDatabase()
+      : super(_TABLENAME + '.db', [
+          ''' CREATE TABLE COURSE_SECTIONS(
       id INTEGER PRIMARY KEY,
       unit_course_id,
       title text,
       summary text
     )
     ''',
-    ''' CREATE TABLE SECTION_MODULES(
+          ''' CREATE TABLE SECTION_MODULES(
         id INTERGER PRIMARY KEY,
         section_id INTEGER,
         title TEXT,
@@ -24,48 +25,48 @@ class CourseSectionsDatabase extends AppDatabase{
         file_path TEXT,
         file_url TEXT
         )
-    ''']);
+    '''
+        ]);
 
-    Future<List<Section>> getSections(int ucId) async{
-        final Database db = await getDatabase();
+  Future<List<MoodleSection>> getSections(int ucId) async {
+    final Database db = await getDatabase();
 
-        final List<dynamic> list = await
-            db.query('course_sections',
-                where: 'unit_course_id = ?',
-                whereArgs: [ucId]);
-        return list.map((map) => Section.fromMap(map)).toList();
+    final List<dynamic> list = await db.query('course_sections',
+        where: 'unit_course_id = ?', whereArgs: [ucId]);
+    return list.map((map) => MoodleSection.fromMap(map)).toList();
+  }
+
+  Future<void> saveSections(List<MoodleSection> sections,
+      {int courseId = -1}) async {
+    final Database db = await getDatabase();
+    final Batch batch = db.batch();
+
+    for(MoodleSection section in sections){
+        batch.delete('SECTION_MODULES', where : 'section_id = ?', whereArgs: [section.id]);
+        batch.delete(_TABLENAME, where : 'id = ?', whereArgs: [section.id]);
+        batch.insert(_TABLENAME, section.toMap(courseId));
     }
+    batch.commit(noResult: true);
+    
+    batch.commit(noResult: true);
+  }
 
-    Future<void> saveSections(List<Section> sections, {int courseId = -1}) async{
-        final Database db = await getDatabase();
-        final Batch batch = db.batch();
+  Future<void> saveActivities(
+      List<MoodleActivity> activities, int sectionId) async {
+    final Database db = await getDatabase();
+    final Batch batch = db.batch();
 
-        for(Section section in sections){
-            batch.delete('SECTION_MODULES', where : 'section_id = ?', whereArgs: [section.id]);
-            batch.delete(_TABLENAME, where : 'id = ?', whereArgs: [section.id]);
-            batch.insert(_TABLENAME, section.toMap(courseId));
-        }
-        batch.commit(noResult: true);
+    for (MoodleActivity module in activities) {
+      batch.insert('section_modules', module.toMap(sectionId));
     }
+    batch.commit(noResult: true);
+  }
 
-    Future<void> saveActivities(List<MoodleActivity> activities, int sectionId) async{
-        final Database db = await getDatabase();
-        final Batch batch = db.batch();
+  Future<List<MoodleSection>> getModules(int sectionId) async {
+    final Database db = await getDatabase();
 
-        for(MoodleActivity module in activities){
-            batch.insert('section_modules', module.toMap(sectionId));
-        }
-        batch.commit(noResult: true);
-    }
-
-    Future<List<Section>> getModules(int sectionId) async{
-        final Database db = await getDatabase();
-
-        final List<dynamic> list = await
-        db.query('section_modules',
-            where: 'section_id = ?',
-            whereArgs: [sectionId]);
-        return list.map((map) => Section.fromMap(map)).toList();
-    }
-
+    final List<dynamic> list = await db.query('section_modules',
+        where: 'section_id = ?', whereArgs: [sectionId]);
+    return list.map((map) => MoodleSection.fromMap(map)).toList();
+  }
 }

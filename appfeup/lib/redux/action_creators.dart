@@ -376,11 +376,11 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
       for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
 
-        final List<Section> sections = await fetcher.getSections(courseUnit);
+        final List<MoodleSection> sections = await fetcher.getSections(courseUnit);
 
         db.saveSections(sections, courseId: courseUnit.id);
 
-        for (Section section in sections) {
+        for (MoodleSection section in sections) {
           db.saveActivities(section.activities, section.id);
         }
         courseUnit.sections = sections;

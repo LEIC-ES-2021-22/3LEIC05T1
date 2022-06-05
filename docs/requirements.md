@@ -2,7 +2,7 @@
 
 ### Use Case Model
 
-The Uni Moodle Module, UMM for short, aims to provide students with an easy way to access Moodle's most useful features, represented by the uses in the next diagram. The aim is to accuratlly assess if the curricular units with Moodle pages using its SIGARRA page and to serve the Moodle functionality using the Uni app.
+The Uni Moodle Module, UMM for short, aims to provide students with an easy way to access Moodle's most useful features, represented by the uses in the next diagram. The aim is to accurately assess the curricular units with Moodle pages using its SIGARRA page and to serve the Moodle functionality using the Uni app.
 
 ![](./Diagrams/Use_case_model.drawio.png)
 

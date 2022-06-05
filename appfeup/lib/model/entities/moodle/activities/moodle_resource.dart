@@ -25,7 +25,6 @@ class MoodleResource extends MoodleActivity {
     return MoodleResource(
       map['id'],
       map['title'],
-      map['type'],
       filePath: map['file_path'],
       fileURL: map['file_url']
 

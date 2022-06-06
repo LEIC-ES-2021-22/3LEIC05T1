@@ -133,6 +133,7 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
             db.saveCourseUnits(res);
             final MoodleCourseUnitsDatabase moodleDb = MoodleCourseUnitsDatabase();
             moodleDb.saveCourseUnits(res);
+            getAllMoodleContentsFromFetcher(Completer());
           });
 
 
@@ -163,6 +164,7 @@ ThunkAction<AppState> updateStateBasedOnLocalCourseUnits() {
   return (Store<AppState> store) async {
     final CourseUnitsDatabase db = CourseUnitsDatabase();
     final List<CourseUnit> exs = await db.getCourseUnits();
+    Logger().i('exs = ' + exs.length.toString());
     for(CourseUnit x in exs){
     }
     store.dispatch(SaveUcsAction(exs));
@@ -222,23 +224,24 @@ ThunkAction<AppState> updateStateBasedOnLocalUserBusStops() {
 ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
   Logger().i('updateStateBasedOnLocalMoodleContents');
   return (Store<AppState> store) async{
-    store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
-    final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
-    final List<MoodleCourseUnit> list = await db.getCourseUnits();
+    try {
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
+      final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
+      final List<MoodleCourseUnit> list = await db.getCourseUnits();
 
-    final Map<int, MoodleCourseUnit> courseUnitsMap = {};
-    for(MoodleCourseUnit mcu in list){
-      courseUnitsMap[mcu.id] = mcu;
+      final Map<int, MoodleCourseUnit> courseUnitsMap = {};
+      for (MoodleCourseUnit mcu in list) {
+        courseUnitsMap[mcu.id] = mcu;
+      }
+      store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
+      if(list.isEmpty){
+        store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.failed)));
+      } else {
+        store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
+      }
+    } catch(e, s){
+      Logger().e(s);
     }
-
-    store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
-    if(list.isEmpty){
-      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.failed)));
-    } else {
-      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
-    }
-
-    store.dispatch(getAllMoodleContentsFromFetcher(Completer()));
   };
 }
 
@@ -374,17 +377,21 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
       final CourseSectionsDatabase db = CourseSectionsDatabase();
       store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
+
       for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
+        try {
+          final List<MoodleSection> sections = await fetcher.getSections(
+              courseUnit);
 
-        final List<MoodleSection> sections = await fetcher.getSections(courseUnit);
-
-        db.saveSections(sections, courseId: courseUnit.id);
-
-        for (MoodleSection section in sections) {
-          db.saveActivities(section.activities, section.id);
+          await db.saveSections(sections, courseId: courseUnit.id);
+          Logger().i('Saved sections ' + sections.length.toString());
+          courseUnit.sections = sections;
+          moodleCourseUnitsMap[courseUnit.id] = courseUnit;
+        } catch(e, s){
+          Logger().e('Error saving moodle contents at uc '
+              + courseUnit.shortName + '\n' +
+              e.toString());
         }
-        courseUnit.sections = sections;
-        moodleCourseUnitsMap[courseUnit.id] = courseUnit;
       }
 
       store.dispatch(SetMoodleCourseUnitsAction(moodleCourseUnitsMap));

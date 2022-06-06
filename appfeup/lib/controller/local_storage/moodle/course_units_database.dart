@@ -14,7 +14,8 @@ class MoodleCourseUnitsDatabase extends AppDatabase{
     [''' CREATE TABLE $_TABLENAME (
       id INTEGER PRIMARY KEY,
       designation TEXT,
-      has_moodle INTEGER
+      has_moodle INTEGER,
+      orderedBy INTEGER
     )
     ''']);
 
@@ -38,12 +39,14 @@ class MoodleCourseUnitsDatabase extends AppDatabase{
         final Database db = await getDatabase();
         final CourseSectionsDatabase sectionsDatabase= CourseSectionsDatabase();
         List<Map<String, dynamic>> coursesMap =
-            await db.query(_TABLENAME );
+            await db.query(_TABLENAME,
+            orderBy: 'orderedBy asc ');
         final List<MoodleCourseUnit> courseUnits = [];
         for(Map<String, dynamic> map in coursesMap){
             final int id = map['id'];
             final List<MoodleSection> sections =
                 await sectionsDatabase.getSections(id);
+            Logger().i('sections = ' + sections.length.toString());
             courseUnits.add(MoodleCourseUnit(id, fullName: map['designation'], sections: sections));
         }
         return courseUnits;

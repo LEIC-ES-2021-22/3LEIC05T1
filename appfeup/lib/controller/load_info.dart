@@ -2,17 +2,26 @@ import 'dart:async';
 import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tuple/tuple.dart';
 import 'package:redux/redux.dart';
 import 'package:uni/controller/local_storage/image_offline_storage.dart';
+import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
+import 'package:uni/controller/networking/network_router.dart';
 import 'package:uni/controller/parsers/parser_exams.dart';
 import 'package:uni/model/app_state.dart';
+import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/redux/action_creators.dart';
 import 'package:uni/redux/actions.dart';
 import 'package:uni/redux/refresh_items_action.dart';
 
+import '../model/entities/moodle/activities/moodle_resource.dart';
+import '../model/entities/session.dart';
 import 'local_storage/app_shared_preferences.dart';
+import 'local_storage/moodle/course_sections_database.dart';
 
 Future loadReloginInfo(Store<AppState> store) async {
   final Tuple2<String, String> userPersistentCredentials =
@@ -135,4 +144,40 @@ Future<File> loadProfilePic(Store<AppState> store) {
     headers['cookie'] = store.state.content['session'].cookies;
   }
   return retrieveImage(url, headers);
+}
+
+/**
+ * Checks if device already has the file. If not, download it
+ */
+Future<String> getMoodleResource(Session session, MoodleResource resource) async{
+  final String path = (await getApplicationDocumentsDirectory()).path;
+  String filePath;
+  if(resource.filePath != null){
+    filePath = resource.filePath;
+  } else {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    final hasInternetConnection = connectivityResult != ConnectivityResult.none;
+    if(!hasInternetConnection){
+      return null;
+    }
+    await NetworkRouter.loginMoodle(session);
+    Logger().i('starting request');
+    Response response = await NetworkRouter.federatedGet(resource.fileURL);
+
+    String extension = '.' +
+      response.request.url.toString().split('.')[1];
+    
+
+    final File file = File(path + resource.id.toString() + extension);
+    RandomAccessFile raf = file.openSync(mode: FileMode.write);
+    raf.writeFromSync(response.bodyBytes);
+    await raf.close();
+    filePath =  file.path;
+
+    //Save resource
+    final CourseSectionsDatabase db = CourseSectionsDatabase();
+    db.saveResourcePath(resource, filePath);
+    resource.filePath = filePath;
+  }
+  return filePath;
 }

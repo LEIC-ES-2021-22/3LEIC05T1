@@ -7,6 +7,7 @@ import 'package:uni/model/entities/course.dart';
 import 'package:uni/model/entities/course_unit.dart';
 import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_list.dart';
 import 'package:uni/model/entities/moodle/activities/course_info/moodle_course_info_section.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
@@ -37,7 +38,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         document.querySelectorAll('.topics > .section');
 
     final List<MoodleSection> moodleSections = [];
-
+    int order = 0;
     for (final sectionElement in sectionElements) {
       //Read section info
       final String sectionId =
@@ -50,17 +51,20 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
 
       //Read section modules
       final List<MoodleActivity> sectionActivities = [];
+      int activityOrder = 0;
       for (final activityElement in activityElements) {
         final MoodleActivity activity =
             await _getActivityFromElement(activityElement);
 
         if (activity is MoodleActivity) {
+          activity.order = activityOrder++;
           sectionActivities.add(activity);
         }
       }
 
       moodleSections.add(MoodleSection(int.parse(sectionId), title, summary,
-          activities: sectionActivities, courseUnitId: courseUnit.id));
+          activities: sectionActivities, courseUnitId: courseUnit.id,
+          order: order++));
     }
 
     return moodleSections;
@@ -318,8 +322,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         return null;
         break;
       case MoodleActivityType.resource:
-        // TODO: Handle this case.
+        String url = element.querySelector("a.aalink").attributes['href']
+            + '&redirect=1';
+        return MoodleResource(id, title, fileURL: url);
         break;
+        /*
       case MoodleActivityType.page:
         // TODO: Handle this case.
 
@@ -334,7 +341,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         ];
 
         return PageActivity(2, 'Example RMI', pageContent.join('\n'));
-
+  */
       case MoodleActivityType.url:
         String url = element.querySelector("a.aalink").attributes['href']
             + '&redirect=1';

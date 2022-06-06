@@ -5,15 +5,19 @@ class MoodleActivity {
   final String title;
   final MoodleActivityType type;
   final String description;
+  int order;
 
-  MoodleActivity(this.id, this.title, this.type, {this.description = ''});
+  MoodleActivity(this.id, this.title, this.type,
+      {this.description = '', this.order=-1}
+  );
 
   static MoodleActivity fromMap(Map<String, dynamic> map) {
     return MoodleActivity(
       map['id'],
       map['title'],
-      map['type'],
+      stringToActivityEnum(map['type']),
       description: map['description'] ?? '',
+      order: map['orderedBy']
     );
   }
 
@@ -22,8 +26,11 @@ class MoodleActivity {
       'id': id,
       'section_id': sectionId,
       'title': title,
-      'type': type,
-      'description': description
+      'type': type.name,
+      'description': description,
+      'file_url': '',
+      'file_path': '',
+      'orderedBy': order
     };
   }
 }

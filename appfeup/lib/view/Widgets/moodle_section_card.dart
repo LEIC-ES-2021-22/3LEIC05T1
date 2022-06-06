@@ -1,8 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
+
+import 'moodle/moodle_resource_widget.dart';
 
 class SectionCard extends StatefulWidget {
   final MoodleSection section;
@@ -37,25 +40,38 @@ class SectionCard extends StatefulWidget {
       return widgets;
     }
     this.section.activities.forEach((element) {
-      widgets.add(Row(
-        children: <Widget>[
-          RichText(
-            text: TextSpan(
-                text: element.title,
-                style: TextStyle(
-                    color: Colors.black, decoration: TextDecoration.underline),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MoodleActivityPageView(element)),
-                    );
-                  }),
-          )
-        ],
-      ));
+      if(element is MoodleResource){
+        widgets.add(Row(
+          children: [
+            MoodleResourceWidget( element)
+          ]
+        ));
+
+      } else {
+        widgets.add(Row(
+          children: <Widget>[
+            Flexible(
+              child:
+              RichText(
+                text: TextSpan(
+                    text: element.title,
+                    style: TextStyle(
+                        color: Colors.black, decoration: TextDecoration.underline),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MoodleActivityPageView(element)),
+                        );
+                      }),
+              )
+            )
+          ],
+        ));
+      }
     });
+
     return widgets;
   }
 

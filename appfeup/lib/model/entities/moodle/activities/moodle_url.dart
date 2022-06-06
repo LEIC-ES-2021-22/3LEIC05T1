@@ -8,7 +8,7 @@ class UrlActivity extends MoodleActivity {
 
   Map<String, dynamic> toMap(int sectionId) {
     final Map<String, dynamic> map = {
-      'url': url
+      'file_url': url
     };
     map.addAll(super.toMap(sectionId));
     return map;

@@ -2,6 +2,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_label.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
@@ -95,7 +96,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     title = _removeHiddenText(titleElem, title);
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
-        // TODO: Handle this case.
+
         final List<dynamic> content = await _fetchSigarraCourseInfo(element);
         return SigarraCourseInfo(id, 'UC Info', content);
 
@@ -109,10 +110,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         String url = element.querySelector("a.aalink").attributes['href'] +
             '&redirect=1';
         return MoodleResource(id, title, fileURL: url);
-        break;
 
       case MoodleActivityType.page:
-        // TODO: Handle this case
         final List<dynamic> moodlePage = await _fetchMoodlePage(element);
         final shortDescritptionElem =
             element.querySelector('.contentafterlink');
@@ -128,8 +127,6 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         String url = element.querySelector("a.aalink").attributes['href'] +
             '&redirect=1';
         return UrlActivity(id, title, url);
-        // TODO: Handle this case.
-        break;
       case MoodleActivityType.quiz:
         return null;
         break;
@@ -140,8 +137,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         return null;
         break;
       case MoodleActivityType.label:
-        // TODO: Handle this case.
-        break;
+        return
+          LabelActivity(id, element.querySelector(".contentwithoutlink").text);
     }
     return null;
   }

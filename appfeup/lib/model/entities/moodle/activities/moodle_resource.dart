@@ -8,8 +8,9 @@ class MoodleResource extends MoodleActivity {
   final String fileURL;
 
   MoodleResource(int id, String title,
-      {this.filePath, this.fileURL})
-      : super(id, title, MoodleActivityType.resource);
+      {this.filePath, this.fileURL, order})
+      : super(id, title, MoodleActivityType.resource,
+      order: order);
 
 
   static MoodleResource fromMap(Map<String, dynamic> map) {
@@ -17,7 +18,8 @@ class MoodleResource extends MoodleActivity {
       map['id'],
       map['title'],
       filePath: map['file_path'],
-      fileURL: map['file_url']
+      fileURL: map['file_url'],
+      order: map['orderedBy'],
 
     );
   }

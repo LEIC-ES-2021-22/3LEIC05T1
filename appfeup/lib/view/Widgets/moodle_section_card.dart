@@ -18,28 +18,29 @@ class SectionCard extends StatefulWidget {
     return Wrap(
         children: <Widget>[
               Divider(color: Colors.grey.shade500),
-              Row(children: <Widget>[
-                Flexible(
+              Container(
+                  child: Flexible(
                     child: Text(
-                  this.section.summary,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ))
-              ]),
+                      this.section.summary,
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                    ),
+                  ),
+                  padding: EdgeInsets.only(
+                    bottom: 15,
+                  )),
             ] +
             createActivities(context));
   }
 
   List<Widget> createActivities(BuildContext context) {
     final List<Widget> widgets = [];
-    if(this.section.activities == null){
+    if (this.section.activities == null) {
       return widgets;
     }
     this.section.activities.forEach((element) {
-      widgets.add(Row(
-        children: <Widget>[
-          RichText(
+      widgets.add(Container(
+          child: RichText(
             text: TextSpan(
                 text: element.title,
                 style: TextStyle(
@@ -49,12 +50,14 @@ class SectionCard extends StatefulWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => MoodleActivityPageView(element)),
+                          builder: (context) =>
+                              MoodleActivityPageView(element)),
                     );
                   }),
-          )
-        ],
-      ));
+          ),
+          padding: EdgeInsets.only(
+            bottom: 10,
+          )));
     });
     return widgets;
   }

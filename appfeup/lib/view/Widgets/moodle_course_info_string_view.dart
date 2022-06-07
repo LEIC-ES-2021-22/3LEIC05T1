@@ -55,7 +55,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
               color: Color.fromARGB(255, 0x75, 0x17, 0x1e))),
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.symmetric(horizontal: 15),
-      margin: EdgeInsets.only(top: 5, bottom: 5),
+      margin: EdgeInsets.only(top: 8, bottom: 10),
     ));
   }
 

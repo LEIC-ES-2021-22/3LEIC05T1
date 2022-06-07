@@ -169,10 +169,10 @@ Future<String> getMoodleResource(Session session, MoodleResource resource) async
       Response response = await NetworkRouter.federatedGet(resource.fileURL);
 
       String extension = '.' +
-          response.request.url.toString().split('.')[1];
+          response.request.url.toString().split('.').last;
 
 
-      final File file = File(path + resource.id.toString() + extension);
+      final File file = File(path + "/" + resource.id.toString() + extension);
       RandomAccessFile raf = file.openSync(mode: FileMode.write);
       raf.writeFromSync(response.bodyBytes);
       await raf.close();

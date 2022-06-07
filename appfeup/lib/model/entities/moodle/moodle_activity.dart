@@ -62,7 +62,7 @@ class MoodleActivity {
         return MoodleResource.fromMap(map);
         break;
       case MoodleActivityType.page:
-        return PageActivity(id, title, description, order);
+        return PageActivity(id, title, description);
         break;
       case MoodleActivityType.url:
         return UrlActivity(id, title,

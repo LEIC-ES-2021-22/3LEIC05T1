@@ -316,7 +316,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
 
 
 
-        return SigarraCourseInfo(1, 'UC Info', content);
+        return SigarraCourseInfo(id, 'UC Info', content);
 
       case MoodleActivityType.summaries:
         return null;
@@ -329,7 +329,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             + '&redirect=1';
         return MoodleResource(id, title, fileURL: url);
         break;
-        /*
+
       case MoodleActivityType.page:
         // TODO: Handle this case.
 
@@ -343,8 +343,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           'java example.hello.Client'
         ];
 
-        return PageActivity(2, 'Example RMI', pageContent.join('\n'));
-  */
+        return PageActivity(id, 'Example RMI', pageContent.join('\n'));
+
       case MoodleActivityType.url:
         String url = element.querySelector("a.aalink").attributes['href']
             + '&redirect=1';

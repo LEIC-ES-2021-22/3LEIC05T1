@@ -1,12 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
-
+import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
-
 import 'moodle/moodle_resource_widget.dart';
+import 'moodle/sigarra_course_info_widget.dart';
 
 class SectionCard extends StatefulWidget {
   final MoodleSection section;
@@ -22,25 +21,28 @@ class SectionCard extends StatefulWidget {
     return Wrap(
         children: <Widget>[
               Divider(color: Colors.grey.shade500),
-              Row(children: <Widget>[
-                Flexible(
+              Container(
+                  child: Flexible(
                     child: Text(
-                  this.section.summary,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ))
-              ]),
+                      this.section.summary,
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                    ),
+                  ),
+                  padding: EdgeInsets.only(
+                    bottom: 15,
+                  )),
             ] +
             createActivities(context));
   }
 
   List<Widget> createActivities(BuildContext context) {
     final List<Widget> widgets = [];
-    if(this.section.activities == null){
+    if (this.section.activities == null) {
       return widgets;
     }
     this.section.activities.forEach((element) {
+
       if(element is MoodleResource){
         widgets.add(Row(
           children: [
@@ -48,7 +50,16 @@ class SectionCard extends StatefulWidget {
           ]
         ));
 
-      } else {
+      }
+      else if(element is SigarraCourseInfo)
+      {
+        widgets.add(Row(
+            children: [
+              SigarraCourseInfoWidget(element)
+            ]
+        ));
+      }
+      else {
         widgets.add(Row(
           children: <Widget>[
             Flexible(

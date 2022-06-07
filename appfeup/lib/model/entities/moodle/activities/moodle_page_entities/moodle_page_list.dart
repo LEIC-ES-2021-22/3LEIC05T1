@@ -1,7 +1,7 @@
-class CourseInfoList {
+class MoodlePageList {
   final List<String> entries;
 
-  CourseInfoList(this.entries);
+  MoodlePageList(this.entries);
 
   @override
   String toString() {

@@ -66,7 +66,6 @@ class CourseSectionsDatabase extends AppDatabase {
 
   Future<void> saveSections(List<MoodleSection> sections,
       {int courseId = -1}) async {
-    Logger().i('sections ' + sections.length.toString());
     final Database db = await getDatabase();
     db.transaction((txn) async{
       try {

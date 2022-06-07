@@ -45,6 +45,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           sectionElement.attributes['aria-labelledby'].split('-')[1];
       final Element content = sectionElement.querySelector('.content');
       final String title = content.querySelector('h3').text;
+
       final String summary = content.querySelector('.summary').text;
       final List<Element> activityElements =
           content.querySelectorAll('.activity');
@@ -84,12 +85,14 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     int id = int.parse(element.attributes['id'].split('-')[1]);
 
     String title;
-    final Element noLinkElem = element.querySelector('.contentwithoutlink');
-    if(noLinkElem != null){
-      title = noLinkElem.text;
+    Element titleElem = element.querySelector('.contentwithoutlink');
+    if(titleElem != null){
+      title = titleElem.text;
     } else {
-      title = element.querySelector('.aalink').text;
+      titleElem = element.querySelector('.aalink');
+      title = titleElem.text;
     }
+    title = _removeHiddenText(titleElem, title);
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
         // TODO: Handle this case.
@@ -362,5 +365,12 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         break;
     }
     return null;
+  }
+
+  String _removeHiddenText(Element element, String text){
+    final Element hidden = element.querySelector(".accesshide");
+      return hidden != null ?
+        text.replaceAll(hidden.text, '') : '';
+
   }
 }

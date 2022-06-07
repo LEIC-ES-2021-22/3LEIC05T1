@@ -1,7 +1,7 @@
-class CourseInfoTable {
+class MoodlePageTable {
   final List<List<String>> entries;
 
-  CourseInfoTable(this.entries);
+  MoodlePageTable(this.entries);
 
   @override
   String toString() {

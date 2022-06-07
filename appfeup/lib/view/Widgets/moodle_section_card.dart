@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
@@ -39,7 +40,17 @@ class SectionCard extends StatefulWidget {
       return widgets;
     }
     this.section.activities.forEach((element) {
-      widgets.add(Container(
+
+      if(element is SigarraCourseInfo)
+      {
+          widgets.add(
+              Row(
+                children: [SigarraCourseInfoWidget(element) sigarra],
+          )
+
+      }
+
+      /*widgets.add(Container(
           child: RichText(
             text: TextSpan(
                 text: element.title,
@@ -51,14 +62,14 @@ class SectionCard extends StatefulWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              MoodleActivityPageView(element)),
+                              ),
                     );
                   }),
           ),
           padding: EdgeInsets.only(
             bottom: 10,
           )));
-    });
+    });*/
     return widgets;
   }
 

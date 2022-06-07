@@ -75,3 +75,24 @@ class MoodleCourseInfoStringState extends State<MoodleCourseInfoString> {
         );
   }
 }
+
+/*Container(
+child: RichText(
+text: TextSpan(
+text: element.title,
+style: TextStyle(
+color: Colors.black, decoration: TextDecoration.underline),
+recognizer: TapGestureRecognizer()
+..onTap = () {
+Navigator.push(
+context,
+MaterialPageRoute(
+builder: (context) =>
+),
+);
+}),
+),
+padding: EdgeInsets.only(
+bottom: 10,
+)));
+})*/

@@ -1,8 +1,8 @@
-class CourseInfoTitle {
+class MoodlePageSectionTitle {
   final String text;
   final int headingNr;
 
-  CourseInfoTitle(this.text, this.headingNr);
+  MoodlePageSectionTitle(this.text, this.headingNr);
 
   @override
   String toString() {

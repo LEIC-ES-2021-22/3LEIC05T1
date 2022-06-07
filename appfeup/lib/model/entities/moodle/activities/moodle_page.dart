@@ -5,5 +5,6 @@ class PageActivity extends MoodleActivity {
   List<dynamic> content;
 
   PageActivity(int id, String title, String description, this.content)
-      : super(id, title, MoodleActivityType.page.name);
+      : super(id, title, MoodleActivityType.page);
+
 }

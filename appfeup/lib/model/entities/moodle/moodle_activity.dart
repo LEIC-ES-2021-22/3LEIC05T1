@@ -3,7 +3,7 @@ import 'package:uni/model/utils/moodle_activity_type.dart';
 class MoodleActivity {
   final int id;
   final String title;
-  final String type;
+  final MoodleActivityType type;
   final String description;
 
   MoodleActivity(this.id, this.title, this.type, {this.description = ''});

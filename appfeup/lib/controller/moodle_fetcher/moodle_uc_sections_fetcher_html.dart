@@ -1,10 +1,10 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
-import 'package:logger/logger.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
@@ -75,6 +75,15 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     if (type == null) {
       return null;
     }
+    int id = int.parse(element.attributes['id'].split('-')[1]);
+
+    String title;
+    final Element noLinkElem = element.querySelector('.contentwithoutlink');
+    if (noLinkElem != null) {
+      title = noLinkElem.text;
+    } else {
+      title = element.querySelector('.aalink').text;
+    }
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
         // TODO: Handle this case.
@@ -100,14 +109,13 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                 .join('\n')
             : '';
 
-        Logger().i('Short description' + shortDescription.toString());
-
-        Logger().i('Page', moodlePage);
-
         return PageActivity(2, element.querySelector('.instancename').text,
             shortDescription, moodlePage);
 
       case MoodleActivityType.url:
+        String url = element.querySelector("a.aalink").attributes['href'] +
+            '&redirect=1';
+        return UrlActivity(id, title, url);
         // TODO: Handle this case.
         break;
       case MoodleActivityType.quiz:
@@ -183,7 +191,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           table.add(th.map((e) => e.text).toList());
           table.add(td.map((e) => e.text).toList());
 
-          content.add(MoodlePageSection(MoodlePageSectionTitle(element.text, 3),
+          content.add(MoodlePageSection(
+              MoodlePageSectionTitle(element.text.replaceAll('<br>', '\n'), 3),
               [MoodlePageTable(table)]));
           break;
 
@@ -337,26 +346,32 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           break;
 
         case 'h1':
-          contents.add(MoodlePageSectionTitle(elem.text, 1));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 1));
           break;
 
         case 'h2':
-          contents.add(MoodlePageSectionTitle(elem.text, 2));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 2));
           break;
 
         case 'h3':
-          contents.add(MoodlePageSectionTitle(elem.text, 3));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 3));
           break;
 
         case 'h4':
-          contents.add(MoodlePageSectionTitle(elem.text, 4));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 4));
           break;
         case 'h5':
-          contents.add(MoodlePageSectionTitle(elem.text, 5));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 5));
           break;
 
         case 'h6':
-          contents.add(MoodlePageSectionTitle(elem.text, 6));
+          contents.add(
+              MoodlePageSectionTitle(elem.text.replaceAll('<br>', '\n'), 6));
           break;
 
         case 'p':
@@ -364,13 +379,19 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             break;
           }
 
-          contents.add(elem.text);
+          contents.add(elem.text.replaceAll('<br>', '\n'));
           break;
 
         case 'table':
           final List<List<String>> t = [];
-          t.add(elem.querySelectorAll('th').map((e) => e.text).toList());
-          t.add(elem.querySelectorAll('td').map((e) => e.text).toList());
+          t.add(elem
+              .querySelectorAll('th')
+              .map((e) => e.text.replaceAll('<br>', '\n'))
+              .toList());
+          t.add(elem
+              .querySelectorAll('td')
+              .map((e) => e.text.replaceAll('<br>', '\n'))
+              .toList());
           contents.add(MoodlePageTable(t));
           break;
 
@@ -382,7 +403,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             if (entry.localName != 'li') {
               continue;
             }
-            entries.add(entry.text);
+            entries.add(entry.text.replaceAll('<br>', '\n'));
           }
           if (entries.isNotEmpty) {
             contents.add(MoodlePageList(entries));
@@ -391,7 +412,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           continue;
 
         default:
-          contents.add(elem.text);
+          contents.add(elem.text.replaceAll('<br>', '\n'));
       }
     }
 

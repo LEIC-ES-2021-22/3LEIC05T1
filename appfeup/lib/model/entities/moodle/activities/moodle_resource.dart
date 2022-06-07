@@ -1,5 +1,7 @@
+import 'package:uni/model/entities/moodle/moodle_activity.dart';
+
 import '../../../utils/moodle_activity_type.dart';
-import '../../Moodle/moodle_activity.dart';
+
 
 class MoodleResource extends MoodleActivity {
   final String filePath;
@@ -7,7 +9,7 @@ class MoodleResource extends MoodleActivity {
 
   MoodleResource(int id, String title,
       {this.filePath, this.fileURL})
-      : super(id, title, MoodleActivityType.resource.name);
+      : super(id, title, MoodleActivityType.resource);
 
   Map<String, dynamic> toMap(int sectionId) {
     return {

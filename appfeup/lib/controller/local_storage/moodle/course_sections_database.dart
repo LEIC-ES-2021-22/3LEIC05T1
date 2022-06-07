@@ -1,8 +1,12 @@
 import 'package:logger/logger.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uni/controller/local_storage/moodle/moodle_page_database.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
+import 'package:uni/model/utils/moodle_activity_type.dart';
 
 import '../app_database.dart';
 
@@ -66,10 +70,23 @@ class CourseSectionsDatabase extends AppDatabase {
       final List<MoodleActivity> acts = [];
       for(Map<String, dynamic> map in list){
         MoodleActivity act = MoodleActivity.createFromMap(map);
-        if(act != null){
-          acts.add(act);
-        } else {
+        if(act == null){
           Logger().i('TODO important ' + map['type']);
+          continue;
+        }
+        MoodleActivityType type = act.type;
+        if(type == MoodleActivityType.page){
+          final MoodlePageDatabase db = MoodlePageDatabase();
+          acts.add(
+              PageActivity(act.id, act.title, act.description,
+                  await db.getPageContent(act.id))
+          );
+        } else if(type == MoodleActivityType.sigarracourseinfo){
+          final MoodlePageDatabase db = MoodlePageDatabase();
+          acts.add(SigarraCourseInfo(act.id, act.title,
+              await db.getPageContent(act.id)));
+        } else {
+          acts.add(act);
         }
       }
       return acts;
@@ -107,6 +124,14 @@ class CourseSectionsDatabase extends AppDatabase {
     List<MoodleActivity> activities, int sectionId, Transaction txn) async {
     try {
       for (MoodleActivity module in activities) {
+        MoodleActivityType type = module.type;
+        if(type == MoodleActivityType.page){
+          final MoodlePageDatabase db = MoodlePageDatabase();
+          db.savePage(module as PageActivity);
+        } else if(type == MoodleActivityType.sigarracourseinfo){
+          final MoodlePageDatabase db = MoodlePageDatabase();
+          db.saveSigarraPage(module as SigarraCourseInfo);
+        }
         Logger().i('activity = ' + module.toMap(sectionId).toString());
         txn.insert('SECTION_MODULES', module.toMap(sectionId));
       }

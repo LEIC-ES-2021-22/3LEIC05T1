@@ -59,6 +59,7 @@ class SectionCard extends StatefulWidget {
             ]
         ));
       }
+      else if
       else {
         widgets.add(Row(
           children: <Widget>[

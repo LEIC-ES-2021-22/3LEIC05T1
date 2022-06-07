@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section_title.dart';
-
+import 'package:flutter_html/flutter_html.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_list.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_table.dart';
@@ -95,21 +95,20 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
           );
         });
       } else if (element is MoodlePageTable) {
-          widgets.add(Table(
+          widgets.add(
+            Padding(
+              padding: EdgeInsets.all(10),
+             child: Table(
               border: TableBorder.all(),
-              columnWidths: const <int, TableColumnWidth>{
-                0: IntrinsicColumnWidth(),
-                1: FlexColumnWidth(),
-                2: FixedColumnWidth(64),
-              },
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: createTableRows(context, element),
 
         )
+            )
           );
       } else if (element is MoodlePageSectionTitle){
-        widgets.add(
-            Flexible(
+        widgets.add(Container());
+            /*Flexible(
                 child: Container(
                   child: Text(this.moodlePageSection.title.text,
                       style: Theme.of(context).textTheme.headline6.apply(
@@ -120,7 +119,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   margin: EdgeInsets.only(top: 5, bottom: 5),
                 )
-            ));
+            ));*/
       }
     });
     return widgets;
@@ -146,7 +145,9 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
     row.forEach((value) {
       widgets.add(
           Container(
+            padding: EdgeInsets.all(5),
           child: Text(value)
+
       ));
     });
 

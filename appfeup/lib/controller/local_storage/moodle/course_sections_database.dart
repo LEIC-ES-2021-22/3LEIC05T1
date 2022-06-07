@@ -57,11 +57,17 @@ class CourseSectionsDatabase extends AppDatabase {
     return null;
   }
 
-  Future<List<MoodleResource>> getActivities(Database db, int sectionId) async{
-    final List<dynamic> list = await db.query('SECTION_MODULES',
+  Future<List<MoodleActivity>> getActivities(Database db, int sectionId) async{
+    final List<Map<String, dynamic>> list = await db.query('SECTION_MODULES',
         where: 'section_id = ? ', whereArgs: [sectionId],
         orderBy: 'orderedBy asc');
-    return list.map((map) => MoodleActivity.createFromMap(map)).toList();
+    try {
+
+      return list.map((map) => MoodleActivity.createFromMap(map)).toList();
+    } catch(e, s){
+      Logger().e(s.toString());
+    }
+    return null;
   }
 
   Future<void> saveSections(List<MoodleSection> sections,

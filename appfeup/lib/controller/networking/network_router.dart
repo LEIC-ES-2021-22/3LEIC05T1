@@ -97,6 +97,9 @@ class NetworkRouter {
       session.studentNumber = responseBody['codigo'];
       session.type = responseBody['tipo'];
       session.cookies = NetworkRouter.extractCookies(response.headers);
+      fedClient =
+        new FederatedHttpClient
+          (session.studentNumber, await AppSharedPreferences.getUserPassword());
       Logger().i('Re-login successful');
       //loginMoodle(session);
       return true;
@@ -108,8 +111,11 @@ class NetworkRouter {
 
   static Future<bool> loginMoodle(Session session) async {
     ///auth/shibboleth/index.php
+    if(fedClient == null){
+      Logger().i(fedClient);
+    }
     final String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
-    await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
+    //await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
     await fedClient.login(url);
 
     final http.Response response =

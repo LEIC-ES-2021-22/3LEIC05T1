@@ -46,7 +46,6 @@ class MoodleCourseUnitsDatabase extends AppDatabase{
             final int id = map['id'];
             final List<MoodleSection> sections =
                 await sectionsDatabase.getSections(id);
-            Logger().i('sections = ' + sections.length.toString());
             courseUnits.add(MoodleCourseUnit(id, fullName: map['designation'], sections: sections));
         }
         return courseUnits;

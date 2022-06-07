@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
@@ -57,15 +59,14 @@ class MoodleActivity {
         return null;
         break;
       case MoodleActivityType.resource:
-        return MoodleResource(id, title,
-          fileURL: map['file_url'],
-          filePath: map['file_path']);
+        return MoodleResource.fromMap(map);
         break;
       case MoodleActivityType.page:
         return PageActivity(id, title, description, order);
         break;
       case MoodleActivityType.url:
-        return UrlActivity(id, title, map['file_url'],
+        return UrlActivity(id, title,
+            map['file_url'],
             order:order,
             description: map['description']
         );
@@ -83,7 +84,8 @@ class MoodleActivity {
         //return MoodleActivity(id, title, type);
         break;
     }
-    return MoodleActivity(id, title, type);
+    return null;
+    //return MoodleActivity(id, title, type);
   }
 
   /**

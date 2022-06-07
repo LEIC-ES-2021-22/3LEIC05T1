@@ -43,7 +43,7 @@ class SectionCard extends StatefulWidget {
       if(element is MoodleResource){
         widgets.add(Row(
           children: [
-            MoodleResourceWidget( element)
+            MoodleResourceWidget(element)
           ]
         ));
 

@@ -5,7 +5,7 @@ import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 
 class SectionCard extends StatefulWidget {
-  final Section section;
+  final MoodleSection section;
 
   SectionCard(this.section, {Key key}) : super(key: key);
 
@@ -33,6 +33,9 @@ class SectionCard extends StatefulWidget {
 
   List<Widget> createActivities(BuildContext context) {
     final List<Widget> widgets = [];
+    if(this.section.activities == null){
+      return widgets;
+    }
     this.section.activities.forEach((element) {
       widgets.add(Row(
         children: <Widget>[

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
+import 'package:uni/view/Widgets/moodle_course_info_section_view.dart';
 
 class SigarraCourseInfoPageView extends MoodleActivityPageView {
   final SigarraCourseInfo ucInfo;
@@ -44,11 +45,21 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
   List<Widget> createContent(BuildContext context) {
     final List<Widget> widgets = [];
 
-    this.ucInfo.content.forEach((key, value) {
-      widgets.add(
+    this.ucInfo.content.forEach((value) {
+      if (value is String) {
+        widgets.add(MoodleCourseeInfoString(value).buildContent(context));
+      }
+      else {
+
+        widgets.add(Text(value.toString()));
+      }
+    });
+    return widgets;
+      /*widgets.add(
+
         Flexible(
           child: Container(
-            child: Text(key,
+            child: Text(value,
                 style: Theme.of(context)
                     .textTheme
                     .headline6
@@ -58,9 +69,9 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
             margin: EdgeInsets.only(top: 10, bottom: 8),
           ),
         ),
-      );
+      );*/
 
-      widgets.add(
+      /*widgets.add(
         Flexible(
           child: Container(
             child: Text(value,
@@ -74,7 +85,7 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
           ),
         ),
       );
-    });
-    return widgets;
+    });*/
+
   }
 }

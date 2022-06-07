@@ -129,10 +129,8 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
           NetworkRouter.getCurrentCourseUnits(store.state.content['session'])
               .then((res) {
             store.dispatch(SaveUcsAction(res));
-            Logger().i('saving to db current ucs');
             final CourseUnitsDatabase db = CourseUnitsDatabase();
             db.saveCourseUnits(res);
-            Logger().i('done saving to db current ucs');
             final MoodleCourseUnitsDatabase moodleDb = MoodleCourseUnitsDatabase();
             moodleDb.saveCourseUnits(res);
           });
@@ -163,13 +161,10 @@ ThunkAction<AppState> getUserInfo(Completer<Null> action) {
 
 ThunkAction<AppState> updateStateBasedOnLocalCourseUnits() {
   return (Store<AppState> store) async {
-    Logger().i('updateStateBasedOnLocalCourseUnits');
     final CourseUnitsDatabase db = CourseUnitsDatabase();
     final List<CourseUnit> exs = await db.getCourseUnits();
     for(CourseUnit x in exs){
-      Logger().i('xxx' + x.toString());
     }
-    Logger().i('courseUnits = ' + exs.length.toString());
     store.dispatch(SaveUcsAction(exs));
   };
 }
@@ -227,6 +222,7 @@ ThunkAction<AppState> updateStateBasedOnLocalUserBusStops() {
 ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
   Logger().i('updateStateBasedOnLocalMoodleContents');
   return (Store<AppState> store) async{
+    store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
     final MoodleCourseUnitsDatabase db = MoodleCourseUnitsDatabase();
     final List<MoodleCourseUnit> list = await db.getCourseUnits();
 
@@ -236,6 +232,12 @@ ThunkAction<AppState> updateStateBasedOnLocalMoodleContents(){
     }
 
     store.dispatch(SetMoodleCourseUnitsAction(courseUnitsMap));
+    if(list.isEmpty){
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.failed)));
+    } else {
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
+    }
+
     store.dispatch(getAllMoodleContentsFromFetcher(Completer()));
   };
 }
@@ -362,6 +364,7 @@ ThunkAction<AppState>
 getAllMoodleContentsFromFetcher(Completer<Null> action){
   return (Store<AppState> store) async{
     try{
+
       Logger().i('Start moodle contents fetcher');
       final MoodleUcsFetcher courseUnitsFetcher = MoodleUcsFetcherAPI();
       List<MoodleCourseUnit> moodleCourseUnits =
@@ -370,13 +373,14 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       final MoodleUcSectionsFetcher fetcher = MoodleUcSectionsFetcherHtml();
       Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
       final CourseSectionsDatabase db = CourseSectionsDatabase();
+      store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
       for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
 
-        final List<Section> sections = await fetcher.getSections(courseUnit);
+        final List<MoodleSection> sections = await fetcher.getSections(courseUnit);
 
         db.saveSections(sections, courseId: courseUnit.id);
 
-        for (Section section in sections) {
+        for (MoodleSection section in sections) {
           db.saveActivities(section.activities, section.id);
         }
         courseUnit.sections = sections;
@@ -387,8 +391,11 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.successful)));
     } catch(e, s){
       Logger().e('Failed to get moodle contents: ${e.toString()} ${s}');
-
-      store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
+      if(!store.state.content.containsKey('moodleCourseUnitsMap')) {
+        store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.failed));
+      } else {
+        store.dispatch(SetMoodleCourseUnitsStatusAction(RequestStatus.successful));
+      }
     }
     action.complete();
   };

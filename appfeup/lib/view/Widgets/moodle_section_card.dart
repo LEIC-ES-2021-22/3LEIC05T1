@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 
 import 'package:uni/model/entities/moodle/moodle_section.dart';

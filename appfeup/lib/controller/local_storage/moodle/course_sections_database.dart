@@ -63,7 +63,16 @@ class CourseSectionsDatabase extends AppDatabase {
         orderBy: 'orderedBy asc');
     try {
 
-      return list.map((map) => MoodleActivity.createFromMap(map)).toList();
+      final List<MoodleActivity> acts = [];
+      for(Map<String, dynamic> map in list){
+        MoodleActivity act = MoodleActivity.createFromMap(map);
+        if(act != null){
+          acts.add(act);
+        } else {
+          Logger().i('TODO important ' + map['type']);
+        }
+      }
+      return acts;
     } catch(e, s){
       Logger().e(s.toString());
     }

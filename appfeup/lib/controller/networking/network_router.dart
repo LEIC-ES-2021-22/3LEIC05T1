@@ -97,6 +97,9 @@ class NetworkRouter {
       session.studentNumber = responseBody['codigo'];
       session.type = responseBody['tipo'];
       session.cookies = NetworkRouter.extractCookies(response.headers);
+      fedClient =
+        new FederatedHttpClient
+          (session.studentNumber, await AppSharedPreferences.getUserPassword());
       Logger().i('Re-login successful');
       //loginMoodle(session);
       return true;
@@ -108,37 +111,42 @@ class NetworkRouter {
 
   static Future<bool> loginMoodle(Session session) async {
     ///auth/shibboleth/index.php
+    if(fedClient == null){
+      Logger().i(fedClient);
+    }
     final String url = NetworkRouter.getMoodleUrl() + '/auth/shibboleth/index.php';
-    await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
+    //await fedClient.get((Uri.parse(NetworkRouter.getMoodleUrl())));
     await fedClient.login(url);
 
     final http.Response response =
         await fedClient.request(NetworkRouter.getMoodleUrl() + 'my/');
+    if(session != null) {
+      final document = parse(response.body);
+      final List<dynamic> scripts = document.querySelectorAll('script');
+      String sesskey = null;
+      for (dynamic script in scripts) {
+        final String scriptStr = script.innerHtml;
 
-    final document = parse(response.body);
-    final List<dynamic> scripts = document.querySelectorAll('script');
-    String sesskey = null;
-    for (dynamic script in scripts) {
-      final String scriptStr = script.innerHtml;
-
-      for (String s in scriptStr.split(';')) {
-        if (s.contains('M.cfg')) {
-          s = s.replaceFirst('M.cfg = ', '');
-          final mcfg = json.decode(s);
-          sesskey = mcfg['sesskey'];
+        for (String s in scriptStr.split(';')) {
+          if (s.contains('M.cfg')) {
+            s = s.replaceFirst('M.cfg = ', '');
+            final mcfg = json.decode(s);
+            sesskey = mcfg['sesskey'];
+            break;
+          }
+        }
+        if (sesskey != null) {
           break;
         }
       }
-      if (sesskey != null) {
-        break;
+      if (sesskey == null) {
+        Logger().e('Moodle login SessKey is null');
+        return false;
       }
-    }
-    if (sesskey == null) {
-      Logger().e('Moodle login SessKey is null');
-      return false;
-    }
 
-    session.moodleSessionKey = sesskey;
+      session.moodleSessionKey = sesskey;
+      return true;
+    }
     return true;
   }
 
@@ -196,19 +204,20 @@ class NetworkRouter {
           await moodleUcsFetcher.getUcs(session);
 
       final List<CourseUnit> ucs = <CourseUnit>[];
+      int order = 0;
       for (var course in responseBody) {
         for (var uc in course['inscricoes']) {
           bool hasMoodle = false;
           for (MoodleCourseUnit courseUnit in ucsWithMoodle) {
             if (uc['ucurr_nome'] == courseUnit.fullName) {
               hasMoodle = true;
-              ucs.add(CourseUnit.fromJson(uc,
+              ucs.add(CourseUnit.fromJson(uc, order: order++,
                   hasMoodle: hasMoodle, moodleId: courseUnit.id));
               break;
             }
           }
           if (!hasMoodle) {
-            ucs.add(CourseUnit.fromJson(uc, hasMoodle: hasMoodle));
+            ucs.add(CourseUnit.fromJson(uc, order: order++, hasMoodle: hasMoodle));
           }
         }
       }

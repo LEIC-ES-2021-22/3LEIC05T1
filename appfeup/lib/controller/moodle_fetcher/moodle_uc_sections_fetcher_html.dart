@@ -3,6 +3,7 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_activity.dart';
@@ -35,30 +36,35 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         document.querySelectorAll('.topics > .section');
 
     final List<MoodleSection> moodleSections = [];
-
+    int order = 0;
     for (final sectionElement in sectionElements) {
       //Read section info
       final String sectionId =
           sectionElement.attributes['aria-labelledby'].split('-')[1];
       final Element content = sectionElement.querySelector('.content');
       final String title = content.querySelector('h3').text;
+
       final String summary = content.querySelector('.summary').text;
       final List<Element> activityElements =
           content.querySelectorAll('.activity');
 
       //Read section modules
       final List<MoodleActivity> sectionActivities = [];
+      int activityOrder = 0;
       for (final activityElement in activityElements) {
         final MoodleActivity activity =
             await _getActivityFromElement(activityElement);
 
         if (activity is MoodleActivity) {
+          activity.order = activityOrder++;
           sectionActivities.add(activity);
         }
       }
 
       moodleSections.add(MoodleSection(int.parse(sectionId), title, summary,
-          activities: sectionActivities, courseUnitId: courseUnit.id));
+          activities: sectionActivities,
+          courseUnitId: courseUnit.id,
+          order: order++));
     }
 
     return moodleSections;
@@ -78,17 +84,20 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     int id = int.parse(element.attributes['id'].split('-')[1]);
 
     String title;
-    final Element noLinkElem = element.querySelector('.contentwithoutlink');
-    if (noLinkElem != null) {
-      title = noLinkElem.text;
+
+    Element titleElem = element.querySelector('.contentwithoutlink');
+    if (titleElem != null) {
+      title = titleElem.text;
     } else {
-      title = element.querySelector('.aalink').text;
+      titleElem = element.querySelector('.aalink');
+      title = titleElem.text;
     }
+    title = _removeHiddenText(titleElem, title);
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
         // TODO: Handle this case.
         final List<dynamic> content = await _fetchSigarraCourseInfo(element);
-        return SigarraCourseInfo(1, 'UC Info', content);
+        return SigarraCourseInfo(id, 'UC Info', content);
 
       case MoodleActivityType.summaries:
         return null;
@@ -97,8 +106,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         return null;
         break;
       case MoodleActivityType.resource:
-        // TODO: Handle this case.
+        String url = element.querySelector("a.aalink").attributes['href'] +
+            '&redirect=1';
+        return MoodleResource(id, title, fileURL: url);
         break;
+
       case MoodleActivityType.page:
         // TODO: Handle this case
         final List<dynamic> moodlePage = await _fetchMoodlePage(element);
@@ -109,7 +121,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
                 .join('\n')
             : '';
 
-        return PageActivity(2, element.querySelector('.instancename').text,
+        return PageActivity(id, element.querySelector('.instancename').text,
             shortDescription, moodlePage);
 
       case MoodleActivityType.url:
@@ -132,6 +144,11 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         break;
     }
     return null;
+  }
+
+  String _removeHiddenText(Element element, String text) {
+    final Element hidden = element.querySelector(".accesshide");
+    return hidden != null ? text.replaceAll(hidden.text, '') : '';
   }
 
   Future<List> _fetchSigarraCourseInfo(Element htmlElement) async {

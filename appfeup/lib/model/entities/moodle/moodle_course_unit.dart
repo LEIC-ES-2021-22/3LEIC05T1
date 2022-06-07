@@ -4,16 +4,17 @@ class MoodleCourseUnit{
   final int id;
   final String shortName;
   final String fullName;
-
+  final int order;
   List<MoodleSection> sections;
 
-  MoodleCourseUnit(this.id, {this.shortName, this.fullName, this.sections});
+  MoodleCourseUnit(this.id, {this.shortName, this.fullName, this.sections, this.order});
 
   static MoodleCourseUnit fromMap(Map<String, dynamic> map){
     return MoodleCourseUnit(
         map['id'],
         fullName : map['fullname'],
-        shortName : map['shortname']
+        shortName : map['shortname'],
+        order: map['orderedBy']
     );
   }
 
@@ -21,7 +22,8 @@ class MoodleCourseUnit{
     return {
       'id' : id,
       'fullName' : fullName,
-      'shortName' : shortName
+      'shortName' : shortName,
+      'order': order
     };
   }
 }

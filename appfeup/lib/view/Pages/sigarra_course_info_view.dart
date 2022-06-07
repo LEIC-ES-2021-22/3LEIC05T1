@@ -46,8 +46,13 @@ class SigarraCourseInfoPageViewState extends UnnamedPageView {
     final List<Widget> widgets = [];
 
     this.ucInfo.content.forEach((value) {
+
       /*if (value is String) {
         widgets.add(MoodleCourseeInfoString(value).buildContent(context));
+=======
+      if (value is String) {
+        widgets.add(MoodleCourseInfoString(value).buildContent(context));
+>>>>>>> main
       }
       else {
 

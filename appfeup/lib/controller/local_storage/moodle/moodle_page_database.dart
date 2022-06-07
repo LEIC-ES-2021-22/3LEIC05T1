@@ -56,7 +56,6 @@ class MoodlePageDatabase extends AppDatabase {
         ]);
 
   Future<List<dynamic>> getPageContent(int pageId) async{
-    Logger().i('start get page content');
     Database db = await getDatabase();
     List<Map<String, dynamic>> sectionsMap =
       await db.query('MOODLE_PAGE_SECTIONS',
@@ -67,7 +66,6 @@ class MoodlePageDatabase extends AppDatabase {
       MoodlePageSection section = MoodlePageSection(map['title'], await _getSectionContent(db, map['id']));
       sections.add(section);
     }
-    Logger().i('end get page content' + sections.length.toString());
     return sections;
   }
 
@@ -77,7 +75,6 @@ class MoodlePageDatabase extends AppDatabase {
     await db.query('MOODLE_PAGE_SECTION_OBJECT',
         where: 'id_content = ?', whereArgs: [sectionId],
         orderBy: 'orderedby asc');
-    Logger().i('query = ' + contentsMap.length.toString());
     final List<dynamic> contents = [];
     for(Map<String,dynamic> map in contentsMap){
       switch(map['type']){

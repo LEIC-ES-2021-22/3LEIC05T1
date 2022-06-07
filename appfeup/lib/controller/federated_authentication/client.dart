@@ -250,15 +250,19 @@ class FederatedHttpClient extends http.BaseClient {
       String contentType = 'text/html'}) async {
     //final loginRequest =
     //     http.Request('GET', Uri.parse('https://eotkqufho5xnoq3.m.pipedream.net'));
-    final request = http.Request(method, Uri.parse(url));
-    request.followRedirects = false;
-    if (body != null) {
-      request.body = body;
-      request.headers['Content-Type'] = contentType;
-    }
-    final http.Response response =
-        await http.Response.fromStream(await send(request, bloat: false));
+    http.Response response;
+    do {
+      final request = http.Request(method, Uri.parse(url));
 
+      request.followRedirects = false;
+      if (body != null) {
+        request.body = body;
+        request.headers['Content-Type'] = contentType;
+      }
+      response =
+        await http.Response.fromStream(await send(request, bloat: false));
+      url = response.headers['location'];
+    }while(response.statusCode == 302 || response.statusCode == 303);
     return response;
   }
 }

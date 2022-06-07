@@ -56,6 +56,7 @@ class MoodlePageDatabase extends AppDatabase {
         ]);
 
   Future<List<dynamic>> getPageContent(int pageId) async{
+    Logger().i('start get page content');
     Database db = await getDatabase();
     List<Map<String, dynamic>> sectionsMap =
       await db.query('MOODLE_PAGE_SECTIONS',
@@ -66,15 +67,17 @@ class MoodlePageDatabase extends AppDatabase {
       MoodlePageSection section = MoodlePageSection(map['title'], await _getSectionContent(db, map['id']));
       sections.add(section);
     }
+    Logger().i('end get page content' + sections.length.toString());
     return sections;
   }
 
   Future<List<dynamic>> _getSectionContent(Database db, int sectionId) async{
     //MOODLE_PAGE_SECTION_OBJECT
     List<Map<String, dynamic>> contentsMap =
-    await db.query('MOODLE_PAGE_SECTIONS',
+    await db.query('MOODLE_PAGE_SECTION_OBJECT',
         where: 'id_content = ?', whereArgs: [sectionId],
         orderBy: 'orderedby asc');
+    Logger().i('query = ' + contentsMap.length.toString());
     final List<dynamic> contents = [];
     for(Map<String,dynamic> map in contentsMap){
       switch(map['type']){
@@ -137,74 +140,104 @@ class MoodlePageDatabase extends AppDatabase {
       );
       int order = 0;
       for(MoodlePageSection pageSection in page.content){
-        _savePageSection(pageSection, txn, order++);
+        _savePageSection(pageSection, txn, order++, page.id);
       }
     });
   }
 
   Future<void> saveSigarraPage(SigarraCourseInfo page) async {
-    Database db = await getDatabase();
-    db.transaction((txn) async{
-      txn.insert(_TABLENAME,
-          {
-            'id': page.id,
-            'title': page.title
-          }
-      );
-      int order = 0;
-      for(MoodlePageSection pageSection in page.content){
-        _savePageSection(pageSection, txn, order++);
-      }
-    });
+    try {
+      Database db = await getDatabase();
+      db.transaction((txn) async {
+        txn.insert(_TABLENAME,
+            {
+              'id': page.id,
+              'title': MoodlePageSectionTitle(page.title, 1)
+            }
+        );
+        int order = 0;
+        for (MoodlePageSection pageSection in page.content) {
+          _savePageSection(pageSection, txn, order++, page.id);
+        }
+      });
+    } catch(e, s){
+      Logger().e(s);
+    }
   }
 
   Future<void> _savePageSection(MoodlePageSection pageSection, Transaction txn,
-      int order) async {
-    int id = await txn.insert('MOODLE_PAGE_SECTIONS', pageSection.toMap(order));
-    int contentOrder = 0;
-    for(dynamic content in pageSection.content){
-      if(content is MoodlePageList){
-        _saveList(content, txn, id, contentOrder);
-      } else if( content is MoodlePageTable){
-        _saveTable(content, txn, id, contentOrder);
-      } else if(content is MoodlePageSectionTitle){
-        _saveTitle(content, txn, id, contentOrder);
-      } else {
-        Logger().w('Page section content unkown ' + content.toString());
+      int order, int pageid) async {
+    try {
+      int id = await txn.insert('MOODLE_PAGE_SECTIONS',
+          pageSection.toMap(order, pageid));
+      int contentOrder = 0;
+      for(dynamic content in pageSection.content){
+        if(content is MoodlePageList){
+          _saveList(content, txn, id, contentOrder);
+        } else if( content is MoodlePageTable){
+          _saveTable(content, txn, id, contentOrder);
+        } else if(content is MoodlePageSectionTitle){
+          _saveTitle(content, txn, id, contentOrder);
+        } else if(content is String){
+          txn.insert('MOODLE_PAGE_SECTION_OBJECT',
+              {
+                'id_content': id,
+                'orderedby': order,
+                'type': 'title',
+                'title': content.toString(),
+                'heading_nr': 7
+              });
+        } else {
+          Logger().w('Page section content unkown ' + content.toString());
+        }
+        contentOrder++;
       }
-      contentOrder++;
+    } catch(e, s){
+      Logger().e(s);
     }
   }
 
   Future<void> _saveList(MoodlePageList list, Transaction txn, int sectionId, int order) async{
-    int id = await txn.insert('MOODLE_PAGE_SECTION_OBJECT', list.toMap(sectionId, order));
-    int entryOrder = 0;
-    for(String entry in list.entries){
-      await txn.insert('MOODLE_PAGE_SECTION_OBJECT_ELEMENT',
-          {
-            'id_collection': id,
-            'content': entry,
-            'order': entryOrder++
-          });
+    try{
+      int id = await txn.insert('MOODLE_PAGE_SECTION_OBJECT', list.toMap(sectionId, order));
+      int entryOrder = 0;
+      for(String entry in list.entries){
+        txn.insert('MOODLE_PAGE_SECTION_OBJECT_ELEMENT',
+            {
+              'id_collection': id,
+              'content': entry,
+              'orderedby': entryOrder++
+            });
+      }
+    } catch(e, s){
+      Logger().e(s);
     }
   }
 
   Future<void> _saveTable(MoodlePageTable table, Transaction txn, int sectionId, int order) async{
-    int id = await txn.insert('MOODLE_PAGE_SECTION_OBJECT', table.toMap(sectionId, order));
-    int entryOrder = 0;
-    for(List<String> row in table.entries){
-      for(String entry in row){
-        await txn.insert('MOODLE_PAGE_SECTION_OBJECT_ELEMENT',
-            {
-              'id_collection': id,
-              'content': entry,
-              'order': entryOrder++
-            });
+    try{
+      int id = await txn.insert('MOODLE_PAGE_SECTION_OBJECT', table.toMap(sectionId, order));
+      int entryOrder = 0;
+      for(List<String> row in table.entries){
+        for(String entry in row){
+          txn.insert('MOODLE_PAGE_SECTION_OBJECT_ELEMENT',
+              {
+                'id_collection': id,
+                'content': entry,
+                'orderedby': entryOrder++
+              });
+        }
       }
+    } catch(e, s){
+      Logger().e(s);
     }
   }
 
   Future<void> _saveTitle(MoodlePageSectionTitle title, Transaction txn, int sectionId, int order) async{
-    await txn.insert('MOODLE_PAGE_SECTION_OBJECT', title.toMap(sectionId, order));
+    try{
+      txn.insert('MOODLE_PAGE_SECTION_OBJECT', title.toMap(sectionId, order));
+    } catch(e, s){
+      Logger().e(s);
+    }
   }
 }

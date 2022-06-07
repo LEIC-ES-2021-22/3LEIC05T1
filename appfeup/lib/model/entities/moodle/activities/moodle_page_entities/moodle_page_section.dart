@@ -9,13 +9,12 @@ class MoodlePageSection {
 
   MoodlePageSection(this.title, this.content);
 
-  Map<String, dynamic> toMap(int order){
+  Map<String, dynamic> toMap(int order, int pageid){
     return {
-      'id': null,
-      'title': title,
+      'title': title.text,
       'type': 'moodle_page',
       'orderedby': order,
-
+      'id_page': pageid,
     };
   }
 

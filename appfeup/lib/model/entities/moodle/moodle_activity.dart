@@ -50,7 +50,7 @@ class MoodleActivity {
 
     switch(type){
       case MoodleActivityType.sigarracourseinfo:
-        //return SigarraCourseInfo(id, title, );
+        return MoodleActivity(id, title, type);
         break;
       case MoodleActivityType.summaries:
         return null;
@@ -62,7 +62,7 @@ class MoodleActivity {
         return MoodleResource.fromMap(map);
         break;
       case MoodleActivityType.page:
-        //return PageActivity(id, title, description);
+        return MoodleActivity(id, title, type);
         break;
       case MoodleActivityType.url:
         return UrlActivity(id, title,

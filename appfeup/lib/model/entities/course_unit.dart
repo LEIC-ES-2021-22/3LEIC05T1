@@ -18,6 +18,7 @@ class CourseUnit {
   num ects;
   bool hasMoodle;
   int moodleId;
+  int order;
 
   CourseUnit({this.id,
   this.code,
@@ -34,10 +35,15 @@ class CourseUnit {
   this.result,
   this.ects,
   this.hasMoodle,
-  this.moodleId});
+  this.moodleId,
+  this.order});
 
   /// Creates a new instance from a JSON object.
-  static CourseUnit fromJson(dynamic data, {bool hasMoodle = false, moodleId = -1}) {
+  static CourseUnit fromJson(dynamic data,
+  {bool hasMoodle = false,
+    moodleId = -1,
+    order  = 0
+  }) {
     return CourseUnit(
       id: data['ucurr_id'],
       code: data['ucurr_codigo'],
@@ -55,6 +61,7 @@ class CourseUnit {
       ects: data['creditos_ects'],
       hasMoodle: hasMoodle,
       moodleId: moodleId,
+      order: order,
     );
   }
 
@@ -85,6 +92,7 @@ class CourseUnit {
         'id': moodleId,
         'designation': name,
         'has_moodle': hasMoodle ? 1 : 0,
+        'orderedBy': order
       };
     }
     return {

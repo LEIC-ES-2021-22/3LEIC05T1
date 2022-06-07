@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/model/entities/moodle/moodle_course_unit.dart';
@@ -45,6 +46,7 @@ class MoodlePageViewState extends UnnamedPageView {
     final List<MoodleSection> sections = uc.sections;
 
     for (MoodleSection section in sections) {
+      Logger().i('section = ' + section.toString());
       list.add(SectionCard(section));
     }
 

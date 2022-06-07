@@ -51,6 +51,11 @@ class MoodleUcsFetcherAPI extends MoodleUcsFetcher {
     }
 
     final List<dynamic> courses = json['data']['courses'];
-    return courses.map((course) => MoodleCourseUnit.fromMap(course)).toList();
+    int order = 0;
+    return courses.map((course){
+      course['orderedBy'] = order++;
+      MoodleCourseUnit cu = MoodleCourseUnit.fromMap(course);
+      return cu;
+    }).toList();
   }
 }

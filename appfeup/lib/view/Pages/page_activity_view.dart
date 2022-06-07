@@ -12,7 +12,6 @@ class PageActivityView extends MoodleActivityPageView {
   State<StatefulWidget> createState() => PageActivityViewState(this.pageInfo);
 }
 
-/// Manages the 'Personal user page' section.
 class PageActivityViewState extends UnnamedPageView {
   PageActivity pageInfo;
 

@@ -24,7 +24,7 @@ class MoodleResource extends MoodleActivity {
 
   @override
   Map<String, dynamic> toMap(int sectionId) {
-    Map<String, dynamic> map = super.toMap(sectionId);
+    final Map<String, dynamic> map = super.toMap(sectionId);
     map.addAll({
       'file_path': filePath,
       'file_url': fileURL

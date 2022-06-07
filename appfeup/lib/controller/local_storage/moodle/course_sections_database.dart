@@ -61,7 +61,7 @@ class CourseSectionsDatabase extends AppDatabase {
     final List<dynamic> list = await db.query('SECTION_MODULES',
         where: 'section_id = ? ', whereArgs: [sectionId],
         orderBy: 'orderedBy asc');
-    return list.map((map) => MoodleResource.fromMap(map)).toList();
+    return list.map((map) => MoodleActivity.createFromMap(map)).toList();
   }
 
   Future<void> saveSections(List<MoodleSection> sections,

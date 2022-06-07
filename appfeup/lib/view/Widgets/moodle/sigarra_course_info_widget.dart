@@ -1,77 +1,63 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
+import 'package:uni/view/Pages/sigarra_course_info_view.dart';
 
-class MoodleCourseInfoString extends StatefulWidget {
-  final String text;
+class SigarraCourseInfoWidget extends StatefulWidget {
+  final SigarraCourseInfo uc;
 
-  MoodleCourseInfoString(this.text, {Key key}) : super(key: key);
+  SigarraCourseInfoWidget(this.uc, {Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return MoodleCourseInfoStringState();
-  }
-
-  Widget buildContent(BuildContext context) {
-    return Wrap(children: <Widget>[
-      Divider(color: Colors.grey.shade500),
-      Row(children: <Widget>[
-        Flexible(
-            child: Text(
-              this.text,
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.fade,
-            ))
-      ]),
-    ]);
+    return SigarraCourseInfoState(this.uc);
   }
 }
 
-class MoodleCourseInfoStringState extends State<MoodleCourseInfoString> {
+class SigarraCourseInfoState extends State<SigarraCourseInfoWidget> {
+  SigarraCourseInfo uc;
   final double borderRadius = 10.0;
   final double padding = 12.0;
 
+  SigarraCourseInfoState(this.uc);
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      color: Color.fromARGB(0, 0, 0, 0),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(this.borderRadius)),
-      child: Container(
-        decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color: Color.fromARGB(0x1c, 0, 0, 0),
-                  blurRadius: 7.0,
-                  offset: Offset(0.0, 1.0))
-            ],
-            color: Theme.of(context).dividerColor,
-            borderRadius:
-            BorderRadius.all(Radius.circular(this.borderRadius))),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: 60.0,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius:
-                BorderRadius.all(Radius.circular(this.borderRadius))),
-            width: (double.infinity),
-            child:
-            Container(
-              padding: EdgeInsets.only(
-                left: this.padding,
-                right: this.padding,
-                bottom: this.padding,
+    return Expanded(
+        child:
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:[
+
+              Container(
+                  padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                  child: Icon(
+                    Icons.info,
+                    size: Theme.of(context).iconTheme.size,
+                    color: Theme.of(context).accentColor,
+                  )
               ),
-              child: widget.buildContent(context),
-            ),
-          ),
-        ),
-      ),
-    );
+              Expanded( child:
+              RichText(
+                  overflow: TextOverflow.fade,
+                  text: TextSpan(
+                      text: widget.uc.title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          .apply(decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = ()  {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SigarraCourseInfoPageView(this.uc)),
+                          );
+                        }
+                  )
+              ),
+              ),
+            ]
+        ));
   }
 }

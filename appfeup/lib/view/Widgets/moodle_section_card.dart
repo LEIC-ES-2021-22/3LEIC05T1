@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'moodle/moodle_resource_widget.dart';
+import 'moodle/sigarra_course_info_widget.dart';
 
 class SectionCard extends StatefulWidget {
   final MoodleSection section;
@@ -41,35 +43,6 @@ class SectionCard extends StatefulWidget {
     }
     this.section.activities.forEach((element) {
 
-     /* if(element is SigarraCourseInfo)
-      {
-          widgets.add(
-              Row(
-                children: [SigarraCourseInfoWidget(element) sigarra],
-          )
-
-      }*/
-
-      /*widgets.add(Container(
-          child: RichText(
-            text: TextSpan(
-                text: element.title,
-                style: TextStyle(
-                    color: Colors.black, decoration: TextDecoration.underline),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ),
-                    );
-                  }),
-          ),
-          padding: EdgeInsets.only(
-            bottom: 10,
-          )));
-    });*/
       if(element is MoodleResource){
         widgets.add(Row(
           children: [
@@ -77,7 +50,16 @@ class SectionCard extends StatefulWidget {
           ]
         ));
 
-      } else {
+      }
+      else if(element is SigarraCourseInfo)
+      {
+        widgets.add(Row(
+            children: [
+              SigarraCourseInfoWidget(element)
+            ]
+        ));
+      }
+      else {
         widgets.add(Row(
           children: <Widget>[
             Flexible(

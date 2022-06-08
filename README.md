@@ -6,7 +6,7 @@ You can find here detailed about the product (or mini-app or module), from a hig
 
 * Business modeling 
   * [Product Vision](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/ProductVision.md)
-  * [Elevator Pitch]
+  * [Elevator Pitch](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/ElevatorPitch.md)
 * [Requirements](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/requirements.md)
   * [Use Case Model](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Use_case_model.drawio.png)
   * [User stories](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/requirements.md#User-stories)
@@ -15,10 +15,7 @@ You can find here detailed about the product (or mini-app or module), from a hig
   * [Logical architecture](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Package_Diagram.drawio.png)
   * [Physical architecture](https://github.com/LEIC-ES-2021-22/3LEIC05T1/blob/main/docs/Diagrams/Physical_architecture.drawio.png)
   * [Vertical prototype](https://github.com/LEIC-ES-2021-22/3LEIC05T1/tree/main/docs/images/vertical_prototype)
-* [Implementation]
-* [Test]
-* [Configuration and change management]
-* [Project management]
+* [Project management](https://github.com/LEIC-ES-2021-22/3LEIC05T1/projects/1)
 
 So far, contributions are exclusively made by the initial team, but we hope to open them to the community, in all areas and topics: requirements, technologies, development, experimentation, testing, etc.
 

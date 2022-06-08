@@ -1,7 +1,7 @@
 import 'dart:io';
+
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:flutter_driver/flutter_driver.dart';
 
 Future<bool> hasNetwork() async {
   try {
@@ -15,9 +15,8 @@ Future<bool> hasNetwork() async {
 StepDefinitionGeneric internetConnectionUnavailable() {
   return given<FlutterWorld>(
     'Internet connection is unavailable',
-        (context) async {
+    (context) async {
       return !(await hasNetwork());
     },
   );
 }
-

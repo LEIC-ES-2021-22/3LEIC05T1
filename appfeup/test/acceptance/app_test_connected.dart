@@ -1,7 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:glob/glob.dart';
 
 import 'steps/i_am_logged_in.dart';
 import 'steps/internet_connection_available.dart';
@@ -10,8 +10,7 @@ import 'steps/internet_connection_unavailable.dart';
 Future<void> main() {
   final config = FlutterTestConfiguration()
     ..features = [
-      RegExp(
-          'test/acceptance/features/moodle/*.*.feature')
+      RegExp('test/acceptance/features/moodle/connected/*.*.feature')
     ]
     ..reporters = [
       ProgressReporter(),

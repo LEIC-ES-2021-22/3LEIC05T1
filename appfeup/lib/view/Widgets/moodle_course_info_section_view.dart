@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section_title.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_list.dart';

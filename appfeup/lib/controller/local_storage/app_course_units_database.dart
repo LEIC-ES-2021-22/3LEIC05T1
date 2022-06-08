@@ -25,28 +25,30 @@ class CourseUnitsDatabase extends AppDatabase {
           grade TEXT,
           result TEXT,
           has_moodle INTEGER,
-          moodle_id INTEGER
+          moodle_id INTEGER,
+          orderedBy INTEGER
         )
     ''']);
 
   void saveCourseUnits(List<CourseUnit> courseUnits) async{
     final Database db = await getDatabase();
     final Batch batch = db.batch();
+    int order = 0;
     for(CourseUnit unit in courseUnits){
-      _saveCourseUnit(unit, batch);
+      _saveCourseUnit(unit, batch, order++);
     }
     batch.commit(noResult: true);
-    final List<Map<String, dynamic>> coursesMap = await db.query(_TABLENAME);
     db.close();
   }
 
-  void _saveCourseUnit(CourseUnit unit, Batch batch){
-    batch.insert(_TABLENAME, unit.toMap());
+  void _saveCourseUnit(CourseUnit unit, Batch batch, int order){
+    batch.insert(_TABLENAME, unit.toMap(orderedBy: order));
   }
 
   Future<List<CourseUnit>> getCourseUnits() async{
     final Database db = await getDatabase();
-    final List<Map<String, dynamic>> coursesMap = await db.query(_TABLENAME);
+    final List<Map<String, dynamic>> coursesMap =
+      await db.query(_TABLENAME, orderBy: 'orderedBy asc');
     return coursesMap.map( (map){
       return CourseUnit.fromMap(map);
       }

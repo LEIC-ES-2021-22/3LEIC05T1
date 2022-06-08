@@ -103,8 +103,8 @@ class CourseSectionsDatabase extends AppDatabase {
       try {
         //final Batch batch = txn.batch();
         for (MoodleSection section in sections) {
-          await txn.delete('SECTION_MODULES', where: 'section_id = ?',
-              whereArgs: [section.id]);
+          //await txn.delete('SECTION_MODULES', where: 'section_id = ?',
+          //    whereArgs: [section.id]);
           await txn.delete(
               _TABLENAME, where: 'id = ?', whereArgs: [section.id]);
           txn.insert(_TABLENAME, section.toMap(courseId));
@@ -123,6 +123,8 @@ class CourseSectionsDatabase extends AppDatabase {
     List<MoodleActivity> activities, int sectionId, Transaction txn) async {
     try {
       for (MoodleActivity module in activities) {
+        final Map<String, dynamic> map = module.toMap(sectionId);
+
         MoodleActivityType type = module.type;
         if(type == MoodleActivityType.page){
           final MoodlePageDatabase db = MoodlePageDatabase();
@@ -130,8 +132,21 @@ class CourseSectionsDatabase extends AppDatabase {
         } else if(type == MoodleActivityType.sigarracourseinfo){
           final MoodlePageDatabase db = MoodlePageDatabase();
           db.saveSigarraPage(module as SigarraCourseInfo);
+        } else if(type == MoodleActivityType.resource){
+          List<Map<String, dynamic>> maps = await
+          txn.query('SECTION_MODULES', where:'id = ?', whereArgs: [module.id]);
+          if(maps.isNotEmpty){
+            if(maps[0]['file_path'] != null && maps[0]['file_path'] != '') {
+              map['file_path'] = maps[0]['file_path'] != null ?
+              maps[0]['file_path'].toString() : '';
+              MoodleResource resource = module as MoodleResource;
+              resource.filePath = map['file_path'];
+            }
         }
-        txn.insert('SECTION_MODULES', module.toMap(sectionId));
+
+        }
+        txn.insert('SECTION_MODULES', map,
+            conflictAlgorithm: ConflictAlgorithm.replace);
       }
     } catch(e, s){
       Logger().e('saveactivityerror ' + s.toString());

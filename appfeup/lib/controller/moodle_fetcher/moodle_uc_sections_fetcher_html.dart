@@ -116,7 +116,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         final shortDescritptionElem =
             element.querySelector('.contentafterlink');
         final shortDescription = shortDescritptionElem != null
-            ? _parseGeneralHtml(element.querySelector('.contentafterlink'))
+            ? parseGeneralHtml(element.querySelector('.contentafterlink'))
                 .join('\n')
             : '';
 
@@ -327,7 +327,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           section = parse('<html><body>' + sectionHtml + '</body></html>');
           // Extract info
           final List<dynamic> courseInfoGeneral =
-              _parseGeneralHtml(section.body);
+              parseGeneralHtml(section.body);
 
           content.add(MoodlePageSection(
               MoodlePageSectionTitle(element.text, 3), courseInfoGeneral));
@@ -355,17 +355,17 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
 
     return [
       MoodlePageSection(
-          pageTitle, _parseGeneralHtml(page.body.querySelector('.generalbox')))
+          pageTitle, parseGeneralHtml(page.body.querySelector('.generalbox')))
     ];
   }
 
-  List<dynamic> _parseGeneralHtml(Element document) {
+  static List<dynamic> parseGeneralHtml(Element document) {
     final List<dynamic> contents = [];
 
     for (final elem in document.children) {
       switch (elem.localName) {
         case 'div':
-          contents.addAll(_parseGeneralHtml(elem));
+          contents.addAll(parseGeneralHtml(elem));
           break;
 
         case 'h1':

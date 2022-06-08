@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section_title.dart';
-import 'package:flutter_html/flutter_html.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_list.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
 import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_table.dart';

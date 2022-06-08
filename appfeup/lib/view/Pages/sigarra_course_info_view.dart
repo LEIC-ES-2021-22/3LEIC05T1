@@ -14,7 +14,6 @@ class SigarraCourseInfoPageView extends MoodleActivityPageView {
       SigarraCourseInfoPageViewState(this.ucInfo);
 }
 
-/// Manages the 'Personal user page' section.
 class SigarraCourseInfoPageViewState extends UnnamedPageView {
   SigarraCourseInfo ucInfo;
 

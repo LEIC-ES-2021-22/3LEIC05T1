@@ -5,10 +5,9 @@ import 'package:flutter_driver/flutter_driver.dart';
 
 StepDefinitionGeneric iAmLoggedIn() {
   return given<FlutterWorld>(
-    "that I'm logged in the uni app",
+    "I'm logged in the uni app",
     (context) async {
-      print('ola');
-      final locator = find.byValueKey(Key('fotoicon'));
+      final locator = find.byValueKey('fotoicon');
       FlutterDriverUtils.isPresent(context.world.driver, locator);
     },
   );

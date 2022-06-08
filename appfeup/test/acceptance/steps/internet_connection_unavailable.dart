@@ -12,11 +12,11 @@ Future<bool> hasNetwork() async {
   }
 }
 
-StepDefinitionGeneric internetConnectionAvailable() {
+StepDefinitionGeneric internetConnectionUnavailable() {
   return given<FlutterWorld>(
-    'Internet connection is available',
+    'Internet connection is unavailable',
         (context) async {
-      return await hasNetwork();
+      return !(await hasNetwork());
     },
   );
 }

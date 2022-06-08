@@ -5,12 +5,13 @@ import 'package:glob/glob.dart';
 
 import 'steps/i_am_logged_in.dart';
 import 'steps/internet_connection_available.dart';
+import 'steps/internet_connection_unavailable.dart';
 
 Future<void> main() {
   final config = FlutterTestConfiguration()
     ..features = [
-      Glob(
-          r'test/acceptance/features/test/acceptance/features/moodle/list*.feature')
+      RegExp(
+          'test/acceptance/features/moodle/*.*.feature')
     ]
     ..reporters = [
       ProgressReporter(),
@@ -20,6 +21,7 @@ Future<void> main() {
     ..stepDefinitions = [
       iAmLoggedIn(),
       internetConnectionAvailable(),
+      internetConnectionUnavailable(),
     ] //insert custom steps
     ..customStepParameterDefinitions = []
     ..restartAppBetweenScenarios = true

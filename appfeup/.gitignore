@@ -42,6 +42,8 @@ assets/env/*
 .pub-cache/
 .pub/
 build/
+**/key.properties
+
 
 # Android related
 **/android/key.properties
@@ -82,6 +84,8 @@ build/
 **/ios/Runner/GeneratedPluginRegistrant.*
 # Web related
 lib/generated_plugin_registrant.dart
+# Test related
+test/acceptance/test_report.json
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages

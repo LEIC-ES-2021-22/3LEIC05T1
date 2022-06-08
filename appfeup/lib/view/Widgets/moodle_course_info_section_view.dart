@@ -1,17 +1,23 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section_title.dart';
+import 'package:flutter_html/flutter_html.dart';
+import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_list.dart';
+import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
+import '../../model/entities/moodle/activities/moodle_page_entities/moodle_page_table.dart';
 
-class MoodleCourseInfoString extends StatefulWidget {
-  final String text;
+class MoodleCourseInfoSection extends StatefulWidget {
+  final MoodlePageSection moodlePageSection;
 
-  MoodleCourseInfoString(this.text, {Key key}) : super(key: key);
+  MoodleCourseInfoSection(this.moodlePageSection, {Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return MoodleCourseInfoStringState();
+    return MoodleCourseInfoSectionState(this.moodlePageSection);
   }
 
-  Widget buildContent(BuildContext context) {
+  /*Widget buildContent(BuildContext context) {
     return Wrap(children: <Widget>[
       Divider(color: Colors.grey.shade500),
       Row(children: <Widget>[
@@ -24,54 +30,111 @@ class MoodleCourseInfoString extends StatefulWidget {
         ))
       ]),
     ]);
-  }
+  }*/
 }
 
-class MoodleCourseInfoStringState extends State<MoodleCourseInfoString> {
+class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
   final double borderRadius = 10.0;
   final double padding = 12.0;
 
+  final MoodlePageSection moodlePageSection;
+
+  MoodleCourseInfoSectionState(this.moodlePageSection);
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        color: Color.fromARGB(0, 0, 0, 0),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(this.borderRadius)),
-        child: Container(
-          decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: Color.fromARGB(0x1c, 0, 0, 0),
-                    blurRadius: 7.0,
-                    offset: Offset(0.0, 1.0))
-              ],
-              color: Theme.of(context).dividerColor,
-              borderRadius:
-                  BorderRadius.all(Radius.circular(this.borderRadius))),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: 60.0,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(this.borderRadius))),
-              width: (double.infinity),
-              child:
-                  Container(
-                    padding: EdgeInsets.only(
-                      left: this.padding,
-                      right: this.padding,
-                      bottom: this.padding,
-                    ),
-                    child: widget.buildContent(context),
-                  ),
-              ),
-            ),
-          ),
-        );
+    return Wrap(children: [createTitle(context)] + createContent(context));
   }
+
+  Widget createTitle(BuildContext context) {
+    return  Container(
+      child: Text(this.moodlePageSection.title.text,
+          style: Theme.of(context).textTheme.headline6.apply(
+              fontSizeFactor: 1.3,
+              color: Color.fromARGB(255, 0x75, 0x17, 0x1e))),
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      margin: EdgeInsets.only(top: 8, bottom: 10),
+    );
+  }
+
+  List<Widget> createContent(BuildContext context) {
+    final List<Widget> widgets = [];
+    this.moodlePageSection.content.forEach((element) {
+      if (element is String) {
+        widgets.add(
+            Container(
+              child: Text(element,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline6
+                      .apply(fontSizeFactor: 0.8)),
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              margin: EdgeInsets.only(bottom: 8),
+            ),
+        );
+      } else if (element is MoodlePageList) {
+        element.entries.forEach((entry) {
+          widgets.add(Container(
+                child: Text("\u2022 " + entry,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .apply(fontSizeFactor: 0.8)),
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                margin: EdgeInsets.only(bottom: 8),
+              ),
+          );
+        });
+      } else if (element is MoodlePageTable) {
+          widgets.add(
+            Padding(
+              padding: EdgeInsets.all(10),
+             child: Table(
+              border: TableBorder.all(),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: createTableRows(context, element),
+
+        )
+            )
+          );
+      } else if (element is MoodlePageSectionTitle){
+        widgets.add(Container());
+      }
+    });
+    return widgets;
+  }
+  List<TableRow> createTableRows(BuildContext context, MoodlePageTable moodlePageTable)
+  {
+    List<TableRow> tableRows = [];
+
+    moodlePageTable.entries.forEach((row) {
+      tableRows.add( TableRow(
+        children:
+          createTableCells(context, row)
+      ));
+    });
+
+    return tableRows;
+  }
+
+  List<Widget> createTableCells(BuildContext context, List<String> row)
+  {
+    final List<Widget> widgets = [];
+
+    row.forEach((value) {
+      widgets.add(
+          Container(
+            padding: EdgeInsets.all(5),
+          child: Text(value)
+
+      ));
+    });
+
+    return widgets;
+  }
+
 }
+

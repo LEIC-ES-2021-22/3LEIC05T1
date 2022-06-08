@@ -19,6 +19,7 @@ import 'package:uni/controller/local_storage/app_user_database.dart';
 import 'package:uni/controller/local_storage/app_restaurant_database.dart';
 import 'package:uni/controller/local_storage/moodle/course_sections_database.dart';
 import 'package:uni/controller/local_storage/moodle/course_units_database.dart';
+import 'package:uni/controller/local_storage/moodle/moodle_page_database.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher_html.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_ucs_fetcher.dart';
@@ -377,6 +378,10 @@ getAllMoodleContentsFromFetcher(Completer<Null> action){
       Map<int, MoodleCourseUnit> moodleCourseUnitsMap = {};
       final CourseSectionsDatabase db = CourseSectionsDatabase();
       store.dispatch(SetMoodleCourseUnitsStatusAction((RequestStatus.busy)));
+
+      //TODO : Later when integrating with UNI PROJECT, should make a better approach
+      final MoodlePageDatabase pageDb = MoodlePageDatabase();
+      await pageDb.deleteAll();
 
       for(MoodleCourseUnit courseUnit in moodleCourseUnits) {
         try {

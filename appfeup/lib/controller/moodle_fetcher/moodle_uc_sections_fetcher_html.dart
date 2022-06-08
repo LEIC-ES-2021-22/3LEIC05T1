@@ -2,6 +2,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:uni/controller/moodle_fetcher/moodle_uc_sections_fetcher.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_label.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page_entities/moodle_page_section.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
@@ -95,7 +96,7 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     title = _removeHiddenText(titleElem, title);
     switch (type) {
       case MoodleActivityType.sigarracourseinfo:
-        // TODO: Handle this case.
+
         final List<dynamic> content = await _fetchSigarraCourseInfo(element);
         return SigarraCourseInfo(id, 'UC Info', content);
 
@@ -109,10 +110,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         String url = element.querySelector("a.aalink").attributes['href'] +
             '&redirect=1';
         return MoodleResource(id, title, fileURL: url);
-        break;
 
       case MoodleActivityType.page:
-        // TODO: Handle this case
         final List<dynamic> moodlePage = await _fetchMoodlePage(element);
         final shortDescritptionElem =
             element.querySelector('.contentafterlink');
@@ -128,8 +127,6 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         String url = element.querySelector("a.aalink").attributes['href'] +
             '&redirect=1';
         return UrlActivity(id, title, url);
-        // TODO: Handle this case.
-        break;
       case MoodleActivityType.quiz:
         return null;
         break;
@@ -140,8 +137,8 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
         return null;
         break;
       case MoodleActivityType.label:
-        // TODO: Handle this case.
-        break;
+        return
+          LabelActivity(id, element.querySelector(".contentwithoutlink").text);
     }
     return null;
   }
@@ -192,25 +189,24 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
     content.add(MoodlePageSection(
         MoodlePageSectionTitle(occurrence.text, 2), occurenceInfo));
 
+
     for (final element in document.querySelectorAll('h3')) {
       switch (element.text) {
         case 'Ciclos de Estudo/Cursos':
           // Degree / Study Cycle Info
-          final Map<String, String> studyCycleInfo = Map();
+          List<List<String>> table = [];
           final th = element.nextElementSibling.querySelectorAll('th');
           final td = element.nextElementSibling.querySelectorAll('td');
 
           for (int i = 0; i < th.length; i += 1) {
-            studyCycleInfo[th[i].text] = td[i].text;
+            table.add([th[i].text, td[i].text]);
           }
-
-          List<List<String>> table = [];
-          table.add(th.map((e) => e.text).toList());
-          table.add(td.map((e) => e.text).toList());
 
           content.add(MoodlePageSection(
               MoodlePageSectionTitle(element.text.replaceAll('<br>', '\n'), 3),
               [MoodlePageTable(table)]));
+
+          print('The content: ' + content.toString()); // ToDo: Remove
           break;
 
         case 'Docência - Responsabilidades':
@@ -225,11 +221,15 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
           break;
 
         case 'Docência - Horas':
+          final List<dynamic> timesContent = [];
+
           final List<List<String>> classtime = [];
           for (final elem in element.nextElementSibling
               .getElementsByClassName('formulario-legenda')) {
             classtime.add([elem.text, elem.nextElementSibling.text]);
           }
+          timesContent.add(MoodlePageSectionTitle('Carga horária semanal', 4));
+          timesContent.add(MoodlePageTable(classtime));
 
           final List<dynamic> teacherTimesInfo = [];
           List<List<String>> teacherTimes = [];
@@ -248,9 +248,15 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
             }
             teacherTimes.add([d.children[0].text, d.children[2].text]);
           }
-          final List<dynamic> timesContent = [];
-          timesContent.add(MoodlePageTable(classtime));
+          if (type != '') {
+            teacherTimesInfo.add(MoodlePageSectionTitle(type, 4));
+            teacherTimesInfo.add(MoodlePageTable(teacherTimes));
+            teacherTimes = [];
+          }
+
+
           timesContent.addAll(teacherTimesInfo);
+          print('The tablee: ' + timesContent.toString()); // ToDo: Remove
           content.add(MoodlePageSection(
               MoodlePageSectionTitle(element.text, 3), timesContent));
           break;

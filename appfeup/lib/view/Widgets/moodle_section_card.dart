@@ -1,11 +1,16 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_label.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:uni/model/entities/moodle/moodle_section.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'moodle/moodle_resource_widget.dart';
+import 'moodle/page_activity_widget.dart';
 import 'moodle/sigarra_course_info_widget.dart';
+import 'moodle/url_activity_widget.dart';
 
 class SectionCard extends StatefulWidget {
   final MoodleSection section;
@@ -54,6 +59,22 @@ class SectionCard extends StatefulWidget {
         widgets.add(Row(
             children: [
               SigarraCourseInfoWidget(element)
+            ]
+        ));
+      }
+      else if(element is PageActivity)
+      {
+          widgets.add(Row(
+              children: [
+                PageActivityWidget(element)
+              ]
+          ));
+        }
+      else if(element is UrlActivity)
+      {
+        widgets.add(Row(
+            children: [
+              URLActivityWidget(element)
             ]
         ));
       }

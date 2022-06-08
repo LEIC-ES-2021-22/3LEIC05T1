@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/view/Pages/moodle_activity_page_view.dart';
 import 'package:uni/view/Pages/unnamed_page_view.dart';
-import 'package:uni/view/Widgets/moodle_course_info_string_view.dart';
+import 'package:uni/view/Widgets/moodle_course_info_section_view.dart';
 
 class SigarraCourseInfoPageView extends MoodleActivityPageView {
   final SigarraCourseInfo ucInfo;

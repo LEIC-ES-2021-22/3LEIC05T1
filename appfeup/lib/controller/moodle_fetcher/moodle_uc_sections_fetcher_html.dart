@@ -206,7 +206,6 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
               MoodlePageSectionTitle(element.text.replaceAll('<br>', '\n'), 3),
               [MoodlePageTable(table)]));
 
-          print('The content: ' + content.toString()); // ToDo: Remove
           break;
 
         case 'Docência - Responsabilidades':
@@ -256,7 +255,6 @@ class MoodleUcSectionsFetcherHtml implements MoodleUcSectionsFetcher {
 
 
           timesContent.addAll(teacherTimesInfo);
-          print('The tablee: ' + timesContent.toString()); // ToDo: Remove
           content.add(MoodlePageSection(
               MoodlePageSectionTitle(element.text, 3), timesContent));
           break;

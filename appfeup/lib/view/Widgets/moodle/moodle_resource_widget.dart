@@ -102,7 +102,6 @@ class MoodleResourceState extends State<MoodleResourceWidget> {
     setState(() {
       status = ResourceStatus.downloading;
     });
-    print('ola');
     final String filePath = await getMoodleResource(null, widget.resource);
     OpenFile.open(filePath);
     setState(() {

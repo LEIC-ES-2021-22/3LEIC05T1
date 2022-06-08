@@ -27,11 +27,11 @@ class SectionCard extends StatefulWidget {
         children: <Widget>[
               Divider(color: Colors.grey.shade500),
               Container(
-                  child:  Text(
-                      this.section.summary,
-                      softWrap: true,
-                      overflow: TextOverflow.fade,
-                    ),
+                  child: Text(
+                    this.section.summary,
+                    softWrap: true,
+                    overflow: TextOverflow.fade,
+                  ),
                   padding: EdgeInsets.only(
                     bottom: 15,
                   )),
@@ -45,59 +45,39 @@ class SectionCard extends StatefulWidget {
       return widgets;
     }
     this.section.activities.forEach((element) {
-
-      if(element is MoodleResource){
-        widgets.add(Row(
-          children: [
-            MoodleResourceWidget(element)
-          ]
-        ));
-
-      }
-      else if(element is SigarraCourseInfo)
-      {
-        widgets.add(Row(
-            children: [
-              SigarraCourseInfoWidget(element)
-            ]
-        ));
-      }
-      else if(element is PageActivity)
-      {
-          widgets.add(Row(
-              children: [
-                PageActivityWidget(element)
-              ]
-          ));
-        }
-      else if(element is UrlActivity)
-      {
-        widgets.add(Row(
-            children: [
-              URLActivityWidget(element)
-            ]
-        ));
-      }
-      else {
+      if (element is MoodleResource) {
+        widgets.add(Row(children: [MoodleResourceWidget(element)]));
+      } else if (element is SigarraCourseInfo) {
+        widgets.add(Row(children: [SigarraCourseInfoWidget(element)]));
+      } else if (element is PageActivity) {
+        widgets.add(Row(children: [PageActivityWidget(element)]));
+      } else if (element is UrlActivity) {
+        widgets.add(Row(children: [URLActivityWidget(element)]));
+      } else if (element is LabelActivity) {
+        widgets.add(Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+            child: Text(element.title)));
+      } else {
         widgets.add(Row(
           children: <Widget>[
             Flexible(
-              child:
-              RichText(
-                text: TextSpan(
-                    text: element.title,
-                    style: TextStyle(
-                        color: Colors.black, decoration: TextDecoration.underline),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MoodleActivityPageView(element)),
-                        );
-                      }),
-              )
-            )
+                child: RichText(
+              text: TextSpan(
+                  text: element.title,
+                  style: TextStyle(
+                      color: Colors.black,
+                      decoration: TextDecoration.underline),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                MoodleActivityPageView(element)),
+                      );
+                    }),
+            ))
           ],
         ));
       }
@@ -106,7 +86,9 @@ class SectionCard extends StatefulWidget {
     return widgets;
   }
 
-  String getTitle() => this.section.title;
+  String getTitle() {
+    return this.section.title;
+  }
 }
 
 class SectionCardState extends State<SectionCard> {
@@ -146,14 +128,17 @@ class SectionCardState extends State<SectionCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Row(
-                    children: [Container(
+                    children: [
+                      Expanded(
+                          child: Container(
                         child: Text(widget.getTitle(),
                             style: Theme.of(context).textTheme.headline1.apply(
                                 fontSizeDelta: -53, fontWeightDelta: -3)),
                         alignment: Alignment.centerLeft,
                         padding: EdgeInsets.symmetric(horizontal: 15),
                         margin: EdgeInsets.only(top: 15, bottom: 10),
-                      ),
+                      )),
+
                       /*Container(
                             child: this.getMoveIcon(context),
                             alignment: Alignment.center,

@@ -25,39 +25,36 @@ class SigarraCourseInfoState extends State<SigarraCourseInfoWidget> {
   Widget build(BuildContext context) {
     return Expanded(
         child:
-        Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children:[
-
-              Container(
-                  padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
-                  child: Icon(
-                    Icons.info,
-                    size: Theme.of(context).iconTheme.size,
-                    color: Theme.of(context).accentColor,
-                  )
-              ),
-              Expanded( child:
-              RichText(
-                  overflow: TextOverflow.fade,
-                  text: TextSpan(
-                      text: widget.uc.title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          .apply(decoration: TextDecoration.underline),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = ()  {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SigarraCourseInfoPageView(this.uc)),
-                          );
-                        }
-                  )
-              ),
-              ),
-            ]
-        ));
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Container(
+          padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+          child: Icon(
+            Icons.info,
+            size: Theme.of(context).iconTheme.size,
+            color: Theme.of(context).accentColor,
+          )),
+      Expanded(
+          child: Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+        child: RichText(
+            overflow: TextOverflow.fade,
+            text: TextSpan(
+                text: widget.uc.title,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    .apply(decoration: TextDecoration.underline),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SigarraCourseInfoPageView(this.uc)),
+                    );
+                  })),
+      )),
+    ]));
   }
 }

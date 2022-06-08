@@ -151,7 +151,6 @@ Future<File> loadProfilePic(Store<AppState> store) {
  * Checks if device already has the file. If not, download it
  */
 Future<String> getMoodleResource(Session session, MoodleResource resource) async{
-  print('filepath = ' + resource.filePath.toString());
   final String path = (await getApplicationDocumentsDirectory()).path;
   String filePath;
 

@@ -47,8 +47,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
   }
 
   Widget createTitle(BuildContext context) {
-    return Flexible(
-        child: Container(
+    return  Container(
       child: Text(this.moodlePageSection.title.text,
           style: Theme.of(context).textTheme.headline6.apply(
               fontSizeFactor: 1.3,
@@ -56,7 +55,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.symmetric(horizontal: 15),
       margin: EdgeInsets.only(top: 8, bottom: 10),
-    ));
+    );
   }
 
   List<Widget> createContent(BuildContext context) {
@@ -64,8 +63,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
     this.moodlePageSection.content.forEach((element) {
       if (element is String) {
         widgets.add(
-          Flexible(
-            child: Container(
+            Container(
               child: Text(element,
                   style: Theme.of(context)
                       .textTheme
@@ -75,13 +73,10 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
               padding: EdgeInsets.symmetric(horizontal: 15),
               margin: EdgeInsets.only(bottom: 8),
             ),
-          ),
         );
       } else if (element is MoodlePageList) {
         element.entries.forEach((entry) {
-          widgets.add(
-            Flexible(
-              child: Container(
+          widgets.add(Container(
                 child: Text("\u2022 " + entry,
                     style: Theme.of(context)
                         .textTheme
@@ -91,7 +86,6 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 margin: EdgeInsets.only(bottom: 8),
               ),
-            ),
           );
         });
       } else if (element is MoodlePageTable) {
@@ -108,9 +102,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
         )
           );
       } else if (element is MoodlePageSectionTitle){
-        widgets.add(
-            Flexible(
-                child: Container(
+        widgets.add(Container(
                   child: Text(this.moodlePageSection.title.text,
                       style: Theme.of(context).textTheme.headline6.apply(
                           fontSizeFactor: 1.1,
@@ -120,7 +112,7 @@ class MoodleCourseInfoSectionState extends State<MoodleCourseInfoSection> {
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   margin: EdgeInsets.only(top: 5, bottom: 5),
                 )
-            ));
+            );
       }
     });
     return widgets;

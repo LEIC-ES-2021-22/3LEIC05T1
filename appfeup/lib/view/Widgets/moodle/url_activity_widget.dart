@@ -66,10 +66,10 @@ class URLActivityState extends State<URLActivityWidget> {
 
   _launchURL() async {
 
-    final String url = this.urlActivity.url;
-    if (await canLaunch(url)) {
+    final Uri url = Uri.parse(this.urlActivity.url);
+    if (await canLaunchUrl(url)) {
       final Response response = await NetworkRouter.federatedGet(this.urlActivity.url);
-      await launch(response.request.url.toString());
+      await launchUrl(response.request.url);
     } else {
       throw 'Could not launch $url';
     }

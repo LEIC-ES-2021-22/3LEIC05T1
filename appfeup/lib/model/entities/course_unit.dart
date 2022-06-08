@@ -86,7 +86,7 @@ class CourseUnit {
     );
   }
 
-  Map<String, dynamic> toMap({toMoodle = false}){
+  Map<String, dynamic> toMap({toMoodle = false, orderedBy = -1}){
     if(toMoodle) {
       return {
         'id': moodleId,
@@ -111,7 +111,8 @@ class CourseUnit {
       'result': result,
       'ects': ects,
       'has_moodle': hasMoodle ? 1 : 0,
-      'moodle_id': moodleId
+      'moodle_id': moodleId,
+      'orderedBy': orderedBy
     };
   }
 

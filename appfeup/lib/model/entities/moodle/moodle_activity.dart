@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
+import 'package:uni/model/entities/moodle/activities/moodle_label.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_page.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_resource.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
@@ -81,7 +82,7 @@ class MoodleActivity {
         return null;
         break;
       case MoodleActivityType.label:
-        //return MoodleActivity(id, title, type);
+        return LabelActivity(id, title);
         break;
     }
     return null;

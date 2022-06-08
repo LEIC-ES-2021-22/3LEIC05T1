@@ -15,7 +15,6 @@ class MoodleSection {
       this.order});
 
   static MoodleSection fromMap(Map<String, dynamic> map) {
-    Logger().i('map = ' + map.toString());
     return MoodleSection(map['id'], map['title'], map['summary'], order: map['orderedBy']);
   }
 

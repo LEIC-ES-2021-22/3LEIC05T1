@@ -154,37 +154,41 @@ Future<String> getMoodleResource(Session session, MoodleResource resource) async
   final String path = (await getApplicationDocumentsDirectory()).path;
   String filePath;
 
-  if(resource.filePath != null && resource.filePath != ''){
-    filePath = resource.filePath;
-  } else {
-    try {
-      final connectivityResult = await (Connectivity().checkConnectivity());
-      final hasInternetConnection = connectivityResult !=
-          ConnectivityResult.none;
-      if (!hasInternetConnection) {
-        return null;
-      }
-      await NetworkRouter.loginMoodle(session);
-      Logger().i('starting request');
-      Response response = await NetworkRouter.federatedGet(resource.fileURL);
 
-      String extension = '.' +
-          response.request.url.toString().split('.').last;
-
-
-      final File file = File(path + "/" + resource.id.toString() + extension);
-      RandomAccessFile raf = file.openSync(mode: FileMode.write);
-      raf.writeFromSync(response.bodyBytes);
-      await raf.close();
-      filePath = file.path;
-
-      //Save resource
-      final CourseSectionsDatabase db = CourseSectionsDatabase();
-      db.saveResourcePath(resource, filePath);
-      resource.filePath = filePath;
-    } catch(e, s){
-      Logger().e(s);
+  try {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    final hasInternetConnection = connectivityResult !=
+        ConnectivityResult.none;
+    if (!hasInternetConnection) {
+      return '';
     }
+    await NetworkRouter.loginMoodle(session);
+    Logger().i('starting request');
+    Response response = await NetworkRouter.federatedGet(resource.fileURL);
+
+    String extension = '.' +
+        response.request.url.toString().split('.').last;
+
+
+    final File file = File(path + "/" + resource.id.toString() + extension);
+    RandomAccessFile raf = file.openSync(mode: FileMode.write);
+    raf.writeFromSync(response.bodyBytes);
+    await raf.close();
+    filePath = file.path;
+
+    //Save resource
+    final CourseSectionsDatabase db = CourseSectionsDatabase();
+    db.saveResourcePath(resource, filePath);
+    resource.filePath = filePath;
+  } catch(e, s){
+    Logger().e(s);
   }
+
   return filePath;
+}
+
+void saveResourcePath(MoodleResource resource, String path){
+  final CourseSectionsDatabase db = CourseSectionsDatabase();
+  db.saveResourcePath(resource, path);
+  resource.filePath = path;
 }

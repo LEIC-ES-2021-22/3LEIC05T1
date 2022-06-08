@@ -1,5 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:logger/logger.dart';
+import 'package:uni/controller/networking/network_router.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_sigarra_course_info.dart';
 import 'package:uni/model/entities/moodle/activities/moodle_url.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -38,11 +41,9 @@ class URLActivityState extends State<URLActivityWidget> {
       Expanded(
           child: Container(
             alignment: Alignment.centerLeft,
-          child: new RaisedButton(
+          child: Container(
               padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
               color: Colors.white,
-              elevation: 0,
-              onPressed: _launchURL,
               child: RichText(
                   overflow: TextOverflow.fade,
                   text: TextSpan(
@@ -50,15 +51,25 @@ class URLActivityState extends State<URLActivityWidget> {
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          .apply(decoration: TextDecoration.underline))))))
+                          .apply(decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          _launchURL();
+                        }
+                  )
+              )
+          )
+          )
+      )
     ]));
   }
 
   _launchURL() async {
 
-    var url = this.urlActivity.url;
+    final String url = this.urlActivity.url;
     if (await canLaunch(url)) {
-      await launch(url);
+      final Response response = await NetworkRouter.federatedGet(this.urlActivity.url);
+      await launch(response.request.url.toString());
     } else {
       throw 'Could not launch $url';
     }

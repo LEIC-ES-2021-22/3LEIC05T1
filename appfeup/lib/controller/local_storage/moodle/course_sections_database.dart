@@ -107,7 +107,6 @@ class CourseSectionsDatabase extends AppDatabase {
               whereArgs: [section.id]);
           await txn.delete(
               _TABLENAME, where: 'id = ?', whereArgs: [section.id]);
-          Logger().i('save section ' + section.toMap(courseId).toString());
           txn.insert(_TABLENAME, section.toMap(courseId));
           saveActivities(section.activities, section.id, txn);
         }
@@ -132,7 +131,6 @@ class CourseSectionsDatabase extends AppDatabase {
           final MoodlePageDatabase db = MoodlePageDatabase();
           db.saveSigarraPage(module as SigarraCourseInfo);
         }
-        Logger().i('activity = ' + module.toMap(sectionId).toString());
         txn.insert('SECTION_MODULES', module.toMap(sectionId));
       }
     } catch(e, s){

@@ -22,13 +22,11 @@ class SectionCard extends StatefulWidget {
         children: <Widget>[
               Divider(color: Colors.grey.shade500),
               Container(
-                  child: Flexible(
-                    child: Text(
+                  child:  Text(
                       this.section.summary,
                       softWrap: true,
                       overflow: TextOverflow.fade,
                     ),
-                  ),
                   padding: EdgeInsets.only(
                     bottom: 15,
                   )),
@@ -127,16 +125,14 @@ class SectionCardState extends State<SectionCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Row(
-                    children: [
-                      Flexible(
-                          child: Container(
+                    children: [Container(
                         child: Text(widget.getTitle(),
                             style: Theme.of(context).textTheme.headline1.apply(
                                 fontSizeDelta: -53, fontWeightDelta: -3)),
                         alignment: Alignment.centerLeft,
                         padding: EdgeInsets.symmetric(horizontal: 15),
                         margin: EdgeInsets.only(top: 15, bottom: 10),
-                      )),
+                      ),
                       /*Container(
                             child: this.getMoveIcon(context),
                             alignment: Alignment.center,
